@@ -35,7 +35,7 @@ function FormularioMiembro({ onSave }) {
         setError(null);
 
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('authToken');
 
             if (!token) {
                 throw new Error('No hay sesión activa');

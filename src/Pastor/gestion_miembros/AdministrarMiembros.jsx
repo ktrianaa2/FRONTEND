@@ -12,7 +12,7 @@ function AdministrarMiembros() {
   const fetchPersonas = async () => {
     try {
       // Get token from localStorage
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       
       if (!token) {
         setError('No hay sesión activa');

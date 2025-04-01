@@ -66,7 +66,7 @@ function FormularioEditarMiembro({ miembro, onClose, onUpdateSuccess }) {
         setLoading(true);
 
         try {
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem('authToken');
             if (!token) {
                 setError("No se encontró el token de autenticación");
                 setLoading(false);
