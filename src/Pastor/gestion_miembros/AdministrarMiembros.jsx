@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { notification } from "antd";
 import TablaMiembros from "./Tabla/TablaMiembros";
 import FormularioMiembro from "./Formularios/FormularioMiembro";
 import API_URL from "../../../Config";
@@ -6,18 +7,16 @@ import API_URL from "../../../Config";
 function AdministrarMiembros() {
   const [personas, setPersonas] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [api, contextHolder] = notification.useNotification();
 
   const fetchPersonas = async () => {
     try {
-      // Get token from localStorage
+      setLoading(true);
       const token = localStorage.getItem('authToken');
       
       if (!token) {
-        setError('No hay sesión activa');
-        setLoading(false);
-        return;
+        throw new Error('No hay sesión activa');
       }
 
       const response = await fetch(`${API_URL}/Miembros/personas/`, {
@@ -35,9 +34,13 @@ function AdministrarMiembros() {
 
       const data = await response.json();
       setPersonas(data.personas);
-      setLoading(false);
     } catch (err) {
-      setError(err.message);
+      api.error({
+        message: 'Error',
+        description: err.message,
+        duration: 5,
+      });
+    } finally {
       setLoading(false);
     }
   };
@@ -50,8 +53,19 @@ function AdministrarMiembros() {
     setMostrarFormulario(!mostrarFormulario);
   };
 
+  const handleSuccess = () => {
+    fetchPersonas();
+    toggleFormulario();
+    api.success({
+      message: 'Éxito',
+      description: 'Miembro registrado correctamente',
+      duration: 3,
+    });
+  };
+
   return (
     <div className="container-fluid py-4">
+      {contextHolder}
       <div className="row mb-4">
         <div className="col">
           <div className="d-flex justify-content-between align-items-center">
@@ -62,6 +76,7 @@ function AdministrarMiembros() {
             <button 
               className="btn btn-success"
               onClick={toggleFormulario}
+              disabled={loading}
             >
               <i className={`bi ${mostrarFormulario ? "bi-x-circle" : "bi-plus-circle"} me-1`}></i> 
               {mostrarFormulario ? "Cancelar" : "Nuevo Miembro"}
@@ -73,12 +88,13 @@ function AdministrarMiembros() {
       {mostrarFormulario ? (
         <FormularioMiembro 
           onClose={toggleFormulario} 
-          onSuccess={fetchPersonas} 
+          onSuccess={handleSuccess}
         />
       ) : (
         <TablaMiembros 
           personas={personas} 
-          onRefreshData={fetchPersonas} 
+          loading={loading}
+          onRefresh={fetchPersonas}
         />
       )}
     </div>

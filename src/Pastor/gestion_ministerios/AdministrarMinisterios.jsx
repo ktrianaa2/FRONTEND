@@ -1,62 +1,129 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MinisteriosTabla from "./tablas/MinisteriosTabla";
-import AgregarMinisterio from "./AgregarMinisterio"; // Importa el componente de agregar ministerio
-import EditarMinisterio from "./EditarMinisterio"; // Importa el componente para editar ministerio
-import ModalDeshabilitar from "./modales/ModalDeshabilitar"; // Importa el modal de deshabilitar
-
-const ministeriosData = [
-    {
-        logo: "/path-to-logo1.png",
-        nombre: "Ministerio de Jóvenes",
-        descripcion: "Ministerio para jóvenes de la iglesia",
-        lideres: ["Juan Pérez", "María González"],
-    },
-    {
-        logo: "/path-to-logo2.png",
-        nombre: "Ministerio de Música",
-        descripcion: "Ministerio de alabanza y música",
-        lideres: ["Carlos Ramírez"],
-    },
-];
+import AgregarMinisterio from "./AgregarMinisterio";
+import EditarMinisterio from "./EditarMinisterio";
+import ModalDeshabilitar from "./modales/ModalDeshabilitar";
+import API_URL from "../../../Config";
+import { notification } from "antd";
 
 function AdministrarMinisterios() {
     const [search, setSearch] = useState("");
-    const [isAgregarOpen, setIsAgregarOpen] = useState(false); // Controlar si se abre el formulario de agregar
-    const [isEditarOpen, setIsEditarOpen] = useState(false); // Controlar si se abre el formulario de editar
+    const [isAgregarOpen, setIsAgregarOpen] = useState(false);
+    const [isEditarOpen, setIsEditarOpen] = useState(false);
     const [isDisableModalOpen, setIsDisableModalOpen] = useState(false);
     const [selectedMinisterio, setSelectedMinisterio] = useState(null);
+    const [ministerios, setMinisterios] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [api, contextHolder] = notification.useNotification();
 
-    const filteredMinisterios = ministeriosData.filter((ministerio) =>
+    // Obtener ministerios desde la API
+    useEffect(() => {
+        const fetchMinisterios = async () => {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No se encontró token de autenticación');
+                }
+
+                const response = await fetch(`${API_URL}/Ministerio/listarministerios/`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    }
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Error al obtener los ministerios');
+                }
+                
+                const data = await response.json();
+                setMinisterios(data.ministerios);
+            } catch (err) {
+                api.error({
+                    message: 'Error',
+                    description: err.message,
+                    duration: 5,
+                });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchMinisterios();
+    }, [api]);
+
+    // Filtrar ministerios según búsqueda
+    const filteredMinisterios = ministerios.filter((ministerio) =>
         ministerio.nombre.toLowerCase().includes(search.toLowerCase())
     );
 
     const handleEdit = (ministerio) => {
-        setSelectedMinisterio(ministerio); // Establece el ministerio que se va a editar
-        setIsEditarOpen(true); // Abre el formulario de editar
+        setSelectedMinisterio(ministerio);
+        setIsEditarOpen(true);
     };
 
     const handleDisable = (ministerio) => {
-        setSelectedMinisterio(ministerio); // Establece el ministerio a deshabilitar
-        setIsDisableModalOpen(true); // Abre el modal de deshabilitar
+        setSelectedMinisterio(ministerio);
+        setIsDisableModalOpen(true);
     };
 
-    const confirmDisable = (ministerio) => {
-        console.log("Ministerio deshabilitado:", ministerio);
+    const confirmDisable = async (ministerio) => {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch(`${API_URL}/Ministerio/desactivar/${ministerio.id_ministerio}/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Error al desactivar el ministerio');
+            }
+
+            // Actualizar lista de ministerios
+            setMinisterios(ministerios.map(m => 
+                m.id_ministerio === ministerio.id_ministerio ? {...m, estado: 'Inactivo'} : m
+            ));
+
+            api.success({
+                message: 'Éxito',
+                description: 'Ministerio desactivado correctamente',
+                duration: 3,
+            });
+        } catch (err) {
+            api.error({
+                message: 'Error',
+                description: err.message,
+                duration: 5,
+            });
+        } finally {
+            setIsDisableModalOpen(false);
+        }
     };
 
     const handleAgregarClose = () => {
-        setIsAgregarOpen(false); // Cierra el formulario de agregar
+        setIsAgregarOpen(false);
+        // Refrescar lista después de agregar
+        setLoading(true);
+        setMinisterios([]);
     };
 
-    const handleEditarClose = () => {
-        setIsEditarOpen(false); // Cierra el formulario de editar
+    const handleEditarClose = (updated = false) => {
+        setIsEditarOpen(false);
+        if (updated) {
+            // Refrescar lista si se editó
+            setLoading(true);
+            setMinisterios([]);
+        }
     };
 
     return (
         <div>
-            <h2 className="text-black">
-                Administración de Ministerios
-            </h2>
+            {contextHolder}
+            <h2 className="text-black">Administración de Ministerios</h2>
             <hr />
 
             {!isAgregarOpen && !isEditarOpen && (
@@ -71,33 +138,31 @@ function AdministrarMinisterios() {
                         />
                         <button
                             className="btn btn-success text-white shadow-sm"
-                            onClick={() => setIsAgregarOpen(true)} // Abre el formulario de agregar
+                            onClick={() => setIsAgregarOpen(true)}
                         >
                             Agregar Ministerio
                         </button>
                     </div>
 
-                    {/* Tabla de ministerios */}
-                    <MinisteriosTabla
-                        filteredMinisterios={filteredMinisterios}
-                        handleEdit={handleEdit}
-                        handleDisable={handleDisable}
-                    />
+                    {loading ? (
+                        <div className="text-center my-4">Cargando ministerios...</div>
+                    ) : (
+                        <MinisteriosTabla
+                            filteredMinisterios={filteredMinisterios}
+                            handleEdit={handleEdit}
+                            handleDisable={handleDisable}
+                        />
+                    )}
                 </div>
             )}
 
-            {/* Formulario de agregar ministerio */}
             {isAgregarOpen && <AgregarMinisterio onClose={handleAgregarClose} />}
-
-            {/* Formulario de editar ministerio */}
             {isEditarOpen && (
                 <EditarMinisterio
                     ministerio={selectedMinisterio}
-                    onClose={handleEditarClose} // Asegúrate de pasar la función para cerrar el formulario
+                    onClose={handleEditarClose}
                 />
             )}
-
-            {/* Modal de deshabilitar */}
             {isDisableModalOpen && (
                 <ModalDeshabilitar
                     ministerio={selectedMinisterio}

@@ -1,76 +1,196 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { notification } from "antd";
+import API_URL from "../../../../Config";
 
-function AgregarMinisterioFormulario({ onClose }) { // Recibe la función onClose desde el componente padre
+function AgregarMinisterioFormulario({ onClose }) {
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
-  const [lideres, setLideres] = useState([]); // Para almacenar los líderes seleccionados
-  const [logo, setLogo] = useState(null);
-  const [selectedLider, setSelectedLider] = useState(""); // Líder seleccionado
-  const [availableLideres] = useState([
-    "Juan Pérez",
-    "María González",
-    "Carlos Ramírez",
-    "Ana López",
-    "José Martínez",
-  ]); // Lista de líderes disponibles
+  const [lideres, setLideres] = useState([]);
+  const [selectedLider, setSelectedLider] = useState("");
+  const [availableLideres, setAvailableLideres] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Configuración inicial de Ant Design Notification
+  const [api, contextHolder] = notification.useNotification();
+
+  // Obtener lista de líderes disponibles al cargar el componente
+  useEffect(() => {
+    const fetchLideres = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          throw new Error('No se encontró token de autenticación');
+        }
+
+        const response = await fetch(`${API_URL}/Miembros/personas/`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Error al obtener los líderes');
+        }
+        
+        const data = await response.json();
+        setAvailableLideres(data.personas);
+      } catch (err) {
+        api.error({
+          message: 'Error',
+          description: err.message,
+          duration: 5,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLideres();
+  }, [api]);
 
   const handleAddLider = () => {
-    if (selectedLider && !lideres.includes(selectedLider)) {
+    if (selectedLider && !lideres.includes(selectedLider) && lideres.length < 2) {
       setLideres([...lideres, selectedLider]);
-      setSelectedLider(""); // Limpiar selección después de añadir
+      setSelectedLider("");
     }
   };
 
-  const handleRemoveLider = (lider) => {
-    setLideres(lideres.filter((item) => item !== lider));
+  const handleRemoveLider = (liderId) => {
+    setLideres(lideres.filter((id) => id !== liderId));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Lógica para agregar el ministerio
-    console.log({ nombre, descripcion, lideres, logo });
+    setSubmitting(true);
+    
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('No se encontró token de autenticación');
+      }
 
-    // Cerrar el formulario al enviar
-    onClose(); // Llama la función onClose del componente padre para cerrarlo
+      const formData = new FormData();
+      formData.append('nombre', nombre);
+      formData.append('descripcion', descripcion);
+      
+      lideres.forEach((liderId, index) => {
+        formData.append(`id_persona_lider${index + 1}`, liderId);
+      });
+      
+      const response = await fetch(`${API_URL}/Ministerio/crearministerios/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData
+      });
+      
+      const responseData = await response.json();
+      
+      if (!response.ok) {
+        // Manejo específico de errores conocidos del backend
+        if (responseData.error) {
+          if (response.status === 400 && responseData.error.includes("Ya existe un ministerio con este nombre")) {
+            api.warning({
+              message: 'Ministerio existente',
+              description: responseData.error,
+              duration: 5,
+            });
+            return;
+          }
+          
+          if (response.status === 403) {
+            api.error({
+              message: 'Permisos insuficientes',
+              description: responseData.error,
+              duration: 5,
+            });
+            return;
+          }
+
+          if (response.status === 401) {
+            api.error({
+              message: 'Autenticación fallida',
+              description: responseData.error,
+              duration: 5,
+            });
+            return;
+          }
+
+          // Error genérico del backend
+          throw new Error(responseData.error);
+        }
+        
+        // Error sin mensaje específico
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
+      // Éxito
+      api.success({
+        message: 'Éxito',
+        description: responseData.mensaje || 'Ministerio creado correctamente',
+        duration: 3,
+      });
+      
+      onClose();
+      
+    } catch (err) {
+      api.error({
+        message: 'Error',
+        description: err.message,
+        duration: 5,
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  if (loading) {
+    return <div className="text-center my-4">Cargando líderes disponibles...</div>;
+  }
 
   return (
     <div>
+      {contextHolder}
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <label className="form-label">Nombre del Ministerio</label>
+          <label className="form-label">Nombre del Ministerio*</label>
           <input
             type="text"
             className="form-control"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
             required
+            disabled={submitting}
           />
         </div>
 
         <div className="mb-3">
-          <label className="form-label">Descripción</label>
+          <label className="form-label">Descripción*</label>
           <textarea
             className="form-control"
             value={descripcion}
             onChange={(e) => setDescripcion(e.target.value)}
             required
+            disabled={submitting}
           />
         </div>
 
-        {/* Líder(es) */}
         <div className="mb-3">
-          <label className="form-label">Líder(es)</label>
+          <label className="form-label">Líder(es) (Máximo 2)</label>
           <div className="d-flex justify-content-between">
             <select
               className="form-select w-75"
               value={selectedLider}
               onChange={(e) => setSelectedLider(e.target.value)}
+              disabled={lideres.length >= 2 || submitting}
             >
               <option value="">Seleccionar líder</option>
-              {availableLideres.map((lider, index) => (
-                <option key={index} value={lider}>
-                  {lider}
+              {availableLideres.map((persona) => (
+                <option key={persona.id_persona} value={persona.id_persona}>
+                  {persona.nombres} {persona.apellidos}
                 </option>
               ))}
             </select>
@@ -78,57 +198,55 @@ function AgregarMinisterioFormulario({ onClose }) { // Recibe la función onClos
               type="button"
               className="btn btn-primary ms-2"
               onClick={handleAddLider}
-              disabled={!selectedLider}
+              disabled={!selectedLider || lideres.length >= 2 || submitting}
             >
               +
             </button>
           </div>
-          {/* Mostrar los líderes seleccionados */}
+          
           <div className="mt-2">
             {lideres.length > 0 && (
               <ul className="list-group">
-                {lideres.map((lider, index) => (
-                  <li
-                    key={index}
-                    className="list-group-item d-flex justify-content-between align-items-center"
-                  >
-                    {lider}
-                    <button
-                      type="button"
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleRemoveLider(lider)}
+                {lideres.map((liderId) => {
+                  const lider = availableLideres.find(p => p.id_persona == liderId);
+                  return (
+                    <li
+                      key={liderId}
+                      className="list-group-item d-flex justify-content-between align-items-center"
                     >
-                      &times;
-                    </button>
-                  </li>
-                ))}
+                      {lider ? `${lider.nombres} ${lider.apellidos}` : `ID: ${liderId}`}
+                      <button
+                        type="button"
+                        className="btn btn-danger btn-sm"
+                        onClick={() => handleRemoveLider(liderId)}
+                        disabled={submitting}
+                      >
+                        &times;
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>
         </div>
 
-        {/* Logo */}
-        <div className="mb-3">
-          <label className="form-label">Logo (opcional)</label>
-          <input
-            type="file"
-            className="form-control"
-            onChange={(e) => setLogo(e.target.files[0])}
-          />
-        </div>
-
-        {/* Botones de acción */}
         <div className="d-flex justify-content-end gap-2">
           <button
             type="button"
             className="btn btn-secondary"
-            onClick={onClose} // Cerrar el formulario sin hacer nada
+            onClick={onClose}
+            disabled={submitting}
           >
             Cancelar
           </button>  
           
-          <button type="submit" className="btn btn-success text-white">
-            Agregar
+          <button 
+            type="submit" 
+            className="btn btn-success text-white"
+            disabled={submitting}
+          >
+            {submitting ? 'Guardando...' : 'Agregar'}
           </button>
         </div>
       </form>
