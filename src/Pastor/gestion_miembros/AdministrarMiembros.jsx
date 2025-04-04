@@ -14,7 +14,7 @@ function AdministrarMiembros() {
     try {
       setLoading(true);
       const token = localStorage.getItem('authToken');
-      
+
       if (!token) {
         throw new Error('No hay sesión activa');
       }
@@ -73,12 +73,12 @@ function AdministrarMiembros() {
               <i className="bi bi-people-fill me-2"></i>
               Administración de Miembros
             </h2>
-            <button 
+            <button
               className="btn btn-success"
               onClick={toggleFormulario}
               disabled={loading}
             >
-              <i className={`bi ${mostrarFormulario ? "bi-x-circle" : "bi-plus-circle"} me-1`}></i> 
+              <i className={`bi ${mostrarFormulario ? "bi-x-circle" : "bi-plus-circle"} me-1`}></i>
               {mostrarFormulario ? "Cancelar" : "Nuevo Miembro"}
             </button>
           </div>
@@ -86,15 +86,15 @@ function AdministrarMiembros() {
       </div>
 
       {mostrarFormulario ? (
-        <FormularioMiembro 
-          onClose={toggleFormulario} 
+        <FormularioMiembro
+          onClose={toggleFormulario}
           onSuccess={handleSuccess}
         />
       ) : (
-        <TablaMiembros 
-          personas={personas} 
+        <TablaMiembros
+          personas={personas}
           loading={loading}
-          onRefresh={fetchPersonas}
+          onRefreshData={fetchPersonas}
         />
       )}
     </div>

@@ -16,41 +16,42 @@ function AdministrarMinisterios() {
     const [loading, setLoading] = useState(true);
     const [api, contextHolder] = notification.useNotification();
 
-    // Obtener ministerios desde la API
-    useEffect(() => {
-        const fetchMinisterios = async () => {
-            try {
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    throw new Error('No se encontró token de autenticación');
-                }
-
-                const response = await fetch(`${API_URL}/Ministerio/listarministerios/`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    }
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Error al obtener los ministerios');
-                }
-                
-                const data = await response.json();
-                setMinisterios(data.ministerios);
-            } catch (err) {
-                api.error({
-                    message: 'Error',
-                    description: err.message,
-                    duration: 5,
-                });
-            } finally {
-                setLoading(false);
+    // Función para obtener ministerios
+    const fetchMinisterios = async () => {
+        try {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('No se encontró token de autenticación');
             }
-        };
 
+            const response = await fetch(`${API_URL}/Ministerio/listarministerios/`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Error al obtener los ministerios');
+            }
+
+            const data = await response.json();
+            setMinisterios(data.ministerios);
+            setLoading(false); // Asegurarse de desactivar el loading
+        } catch (err) {
+            api.error({
+                message: 'Error',
+                description: err.message,
+                duration: 5,
+            });
+            setLoading(false); // Asegurarse de desactivar el loading incluso en errores
+        }
+    };
+
+    // Cargar ministerios al montar el componente
+    useEffect(() => {
         fetchMinisterios();
-    }, [api]);
+    }, []);
 
     // Filtrar ministerios según búsqueda
     const filteredMinisterios = ministerios.filter((ministerio) =>
@@ -84,8 +85,8 @@ function AdministrarMinisterios() {
             }
 
             // Actualizar lista de ministerios
-            setMinisterios(ministerios.map(m => 
-                m.id_ministerio === ministerio.id_ministerio ? {...m, estado: 'Inactivo'} : m
+            setMinisterios(ministerios.map(m =>
+                m.id_ministerio === ministerio.id_ministerio ? { ...m, estado: 'Inactivo' } : m
             ));
 
             api.success({
@@ -104,19 +105,32 @@ function AdministrarMinisterios() {
         }
     };
 
-    const handleAgregarClose = () => {
+    const handleAgregarClose = (updated = false) => {
         setIsAgregarOpen(false);
-        // Refrescar lista después de agregar
-        setLoading(true);
-        setMinisterios([]);
+        if (updated) {
+            // Refrescar lista después de agregar
+            setLoading(true);
+            fetchMinisterios();
+        }
     };
 
-    const handleEditarClose = (updated = false) => {
+    const handleEditarClose = (updated = false, errorMessage = null) => {
         setIsEditarOpen(false);
         if (updated) {
+            api.success({
+                message: 'Éxito',
+                description: 'Ministerio actualizado correctamente',
+                duration: 3,
+            });
             // Refrescar lista si se editó
             setLoading(true);
-            setMinisterios([]);
+            fetchMinisterios();
+        } else if (errorMessage) {
+            api.error({
+                message: 'Error',
+                description: errorMessage,
+                duration: 5,
+            });
         }
     };
 

@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import FormularioEditarMiembro from "../Formularios/FormularioEditarMiembro";
+import { notification } from "antd";
 
 function TablaMiembros({ personas, onRefreshData }) {
   const [showEditForm, setShowEditForm] = useState(false);
   const [selectedMiembro, setSelectedMiembro] = useState(null);
+  const [api, contextHolder] = notification.useNotification();
 
   const handleEditClick = (persona) => {
     setSelectedMiembro(persona);
@@ -15,15 +17,36 @@ function TablaMiembros({ personas, onRefreshData }) {
     setSelectedMiembro(null);
   };
 
-  const handleUpdateSuccess = () => {
-    // Call the parent's refresh function
-    if (onRefreshData) {
-      onRefreshData();
+  const handleUpdateSuccess = async () => {
+    try {
+      // Mostrar notificación de éxito
+      api.success({
+        message: 'Éxito',
+        description: 'Los datos del miembro se actualizaron correctamente',
+        duration: 3,
+      });
+
+      // Actualizar la tabla
+      if (onRefreshData) {
+        await onRefreshData(); // Añade await aquí
+      }
+
+      // Cerrar el formulario después de actualizar los datos
+      setShowEditForm(false);
+      setSelectedMiembro(null);
+
+    } catch (error) {
+      api.error({
+        message: 'Error',
+        description: 'Ocurrió un error al actualizar los datos',
+        duration: 5,
+      });
     }
   };
 
   return (
     <div>
+      {contextHolder}
       {!showEditForm ? (
         <div className="card shadow">
           <div className="card-header bg-primary text-white">
@@ -73,7 +96,7 @@ function TablaMiembros({ personas, onRefreshData }) {
                         <td>{persona.lugar_trabajo}</td>
                         <td>
                           <div className="btn-group" role="group">
-                            <button 
+                            <button
                               className="btn btn-sm btn-primary me-1"
                               onClick={() => handleEditClick(persona)}
                             >
@@ -93,8 +116,8 @@ function TablaMiembros({ personas, onRefreshData }) {
           </div>
         </div>
       ) : (
-        <FormularioEditarMiembro 
-          miembro={selectedMiembro} 
+        <FormularioEditarMiembro
+          miembro={selectedMiembro}
           onClose={handleCloseForm}
           onUpdateSuccess={handleUpdateSuccess}
         />

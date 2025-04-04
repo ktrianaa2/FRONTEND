@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button, Form, Row, Col, Alert, Card } from "react-bootstrap";
+import { notification } from "antd";
 import API_URL from "../../../../Config";
 
 // Modify the component props to accept an onUpdateSuccess callback
@@ -23,6 +24,7 @@ function FormularioEditarMiembro({ miembro, onClose, onUpdateSuccess }) {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
+    const [api, contextHolder] = notification.useNotification();
 
     useEffect(() => {
         if (miembro) {
@@ -54,28 +56,15 @@ function FormularioEditarMiembro({ miembro, onClose, onUpdateSuccess }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError("");
-        setSuccess("");
-
-        // Validación para nombres y apellidos
-        if (!formData.nombres.trim() || !formData.apellidos.trim()) {
-            setError("Los campos Nombres y Apellidos son obligatorios");
-            return;
-        }
-
         setLoading(true);
 
         try {
             const token = localStorage.getItem('authToken');
             if (!token) {
-                setError("No se encontró el token de autenticación");
-                setLoading(false);
-                return;
+                throw new Error("No se encontró el token de autenticación");
             }
 
             const formDataToSend = new FormData();
-
-            // Agregar todos los campos al FormData
             Object.keys(formData).forEach(key => {
                 formDataToSend.append(key, formData[key]);
             });
@@ -83,36 +72,36 @@ function FormularioEditarMiembro({ miembro, onClose, onUpdateSuccess }) {
             const response = await fetch(`${API_URL}/Miembros/editarpersonas/${miembro.id_persona}/actualizar/`, {
                 method: "POST",
                 headers: {
-                    Authorization: token
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: formDataToSend
             });
 
-            const data = await response.json();
-
-            if (response.ok) {
-                setSuccess("Miembro actualizado exitosamente");
-                
-                // Call the onUpdateSuccess callback if provided
-                if (onUpdateSuccess) {
-                    onUpdateSuccess();
-                }
-                
-                setTimeout(() => {
-                    onClose();
-                }, 2000);
-            } else {
-                setError(data.error || "Error al actualizar el miembro");
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Error al actualizar el miembro");
             }
+
+            // Solo llama al callback de éxito, no cierres el formulario aquí
+            if (onUpdateSuccess) {
+                await onUpdateSuccess(); // Añade await
+            }
+
         } catch (error) {
-            setError("Error de conexión: " + error.message);
+            api.error({
+                message: 'Error',
+                description: error.message,
+                duration: 5,
+            });
         } finally {
             setLoading(false);
         }
     };
 
+
     return (
         <Card className="shadow">
+            {contextHolder}
             <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
                 <h5 className="mb-0">Editar Miembro</h5>
                 <Button variant="light" size="sm" onClick={onClose}>
@@ -120,9 +109,6 @@ function FormularioEditarMiembro({ miembro, onClose, onUpdateSuccess }) {
                 </Button>
             </Card.Header>
             <Card.Body>
-                {error && <Alert variant="danger">{error}</Alert>}
-                {success && <Alert variant="success">{success}</Alert>}
-
                 <Form onSubmit={handleSubmit}>
                     <Row>
                         <Col md={6}>
