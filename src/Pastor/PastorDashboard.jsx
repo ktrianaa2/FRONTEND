@@ -10,6 +10,7 @@ import AdministrarFamiliasEvento from "./familias_evento/AdministrarFamiliasEven
 import AdministrarDiezmos from "./gestion_diezmos/AdministrarDiezmos";
 import AdministrarMinisterios from "./gestion_ministerios/AdministrarMinisterios";
 import AdministrarEventos from "./gestion_eventos/AdministrarEventos";
+import AdministrarReportes from "../Reportes/ReporteInicio";
 
 const PastorDashboard = () => {
     const navigate = useNavigate();
@@ -55,6 +56,7 @@ const PastorDashboard = () => {
     if (!userData) return null;
 
     const usuario = userData.nombre_usuario; // Extraer nombre de usuario
+    const nombreCompleto = `${userData.nombres} ${userData.apellidos}`;
 
     const handleNavigate = (view) => {
         const viewPathMap = {
@@ -64,28 +66,32 @@ const PastorDashboard = () => {
             "eventos": "/pastor/citi_eventos",
             "diezmos": "/pastor/citi_diezmos",
             "curso": "/pastor/citi_curso",
-            "familias": "/pastor/citi_familias"
+            "familias": "/pastor/citi_familias",
+            "reportes": "/pastor/citi_reportes"
         };
 
         navigate(viewPathMap[view] || "/pastor");
     };
 
     return (
-        <div className="min-h-screen">
-            <PastorNav onNavigate={handleNavigate} Usuario={usuario} />
-            <div className="mx-2 pt-5 mt-4">
-                <Routes>
-                    <Route index element={<PastorPanel onNavigate={handleNavigate} />} />
-                    <Route path="citi_miembros" element={<AdministrarMiembros />} />
-                    <Route path="citi_ministerios" element={<AdministrarMinisterios />} />
-                    <Route path="citi_eventos" element={<AdministrarEventos />} />
-                    <Route path="citi_diezmos" element={<AdministrarDiezmos />} />
-                    <Route path="citi_curso" element={<AdministrarCurso />} />
-                    <Route path="citi_familias" element={<AdministrarFamiliasEvento />} />
-                </Routes>
+        <div className="container-fluid vh-100 bg-light">
+            <div className="min-h-screen">
+                <PastorNav onNavigate={handleNavigate} Usuario={nombreCompleto} />
+                <div className="mx-2 pt-5 mt-4">
+                    <Routes>
+                        <Route index element={<PastorPanel onNavigate={handleNavigate} />} />
+                        <Route path="citi_miembros" element={<AdministrarMiembros />} />
+                        <Route path="citi_ministerios" element={<AdministrarMinisterios />} />
+                        <Route path="citi_eventos" element={<AdministrarEventos />} />
+                        <Route path="citi_diezmos" element={<AdministrarDiezmos />} />
+                        <Route path="citi_curso" element={<AdministrarCurso />} />
+                        <Route path="citi_familias" element={<AdministrarFamiliasEvento />} />
+                        <Route path="citi_reportes" element={<AdministrarReportes />} />
+                    </Routes>
 
+                </div>
+                <PastorMenu onNavigate={handleNavigate} Usuario={usuario} onLogout={handleLogout} />
             </div>
-            <PastorMenu onNavigate={handleNavigate} Usuario={usuario} onLogout={handleLogout} />
         </div>
     );
 };

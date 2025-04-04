@@ -58,7 +58,9 @@ const Login = () => {
                 localStorage.setItem('userData', JSON.stringify({
                     nombre_usuario: data.nombre_usuario,
                     id_usuario: data.id_usuario,
-                    rol: data.rol
+                    rol: data.rol,
+                    nombres: data.nombres,       
+                    apellidos: data.apellidos    
                 }));
 
                 // Redirigir según el rol
@@ -77,15 +79,17 @@ const Login = () => {
         }
     };
 
+    
     return (
         <div className="container-fluid vh-100 bg-light">
             <div className="row h-100 justify-content-center align-items-center">
                 <div className="col-12 col-md-8 col-lg-6 col-xl-4">
-                    <div className="card shadow-lg">
+                    <div className="card shadow-lg bg-black text-white border-0">
                         <div className="card-body p-5">
                             <div className="text-center mb-4">
-                                <h2 className="fw-bold text-primary">Acceso al Sistema</h2>
-                                <p className="text-muted">Ingrese sus credenciales</p>
+                                <img src="/Logo.webp" alt="Logo" className="mb-3" style={{ maxWidth: '300px', height: 'auto' }} />
+                                <h2 className="fw-bold text-white">Iniciar Sesión</h2>
+                                <p className="text-secondary">Ingrese sus credenciales</p>
                             </div>
 
                             {error && (
@@ -96,10 +100,10 @@ const Login = () => {
 
                             <form onSubmit={handleSubmit}>
                                 <div className="mb-3">
-                                    <label htmlFor="username" className="form-label">Usuario</label>
+                                    <label htmlFor="username" className="form-label text-white">Usuario</label>
                                     <input
                                         type="text"
-                                        className="form-control"
+                                        className="form-control bg-dark text-white border-secondary"
                                         id="username"
                                         placeholder="Nombre de usuario"
                                         value={username}
@@ -110,10 +114,10 @@ const Login = () => {
                                 </div>
 
                                 <div className="mb-4">
-                                    <label htmlFor="password" className="form-label">Contraseña</label>
+                                    <label htmlFor="password" className="form-label text-white">Contraseña</label>
                                     <input
                                         type="password"
-                                        className="form-control"
+                                        className="form-control bg-dark text-white border-secondary"
                                         id="password"
                                         placeholder="••••••••"
                                         value={password}
@@ -124,7 +128,7 @@ const Login = () => {
 
                                 <button
                                     type="submit"
-                                    className="btn btn-primary w-100 py-2"
+                                    className="btn btn-danger w-100 py-2"
                                     disabled={isLoading}
                                 >
                                     {isLoading ? (
@@ -132,12 +136,14 @@ const Login = () => {
                                             <span className="spinner-border spinner-border-sm me-2"></span>
                                             Verificando...
                                         </>
-                                    ) : "Ingresar"}
+                                    ) : "Iniciar sesión"}
                                 </button>
                             </form>
 
                             <div className="text-center mt-3">
-                                <a href="#!" className="text-decoration-none">Recuperar contraseña</a>
+                                <a href="#!" className="text-danger text-decoration-none">
+                                    ¿Olvidaste tu contraseña?
+                                </a>
                             </div>
                         </div>
                     </div>

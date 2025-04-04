@@ -1,0 +1,9 @@
+/* Clase para el efecto hover */
+.hover-relief {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-relief:hover {
+    transform: scale(1.05); /* Agranda ligeramente la card */
+    box-shadow: 0 4px 8px rgba(171, 219, 227, 0.5), 0 6px 20px rgba(171, 219, 227, 0.3); /* Sombra celeste */
+}

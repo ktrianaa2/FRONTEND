@@ -87,7 +87,7 @@ function PastorMenu({ onNavigate, Usuario, onLogout }) {
             </button>
             <ul className="dropdown-menu">
               <li>
-                <button className="dropdown-item" onClick={() => onNavigate("option1")}>
+                <button className="dropdown-item" onClick={() => onNavigate("reportes")}>
                   Reportes
                 </button>
               </li>
