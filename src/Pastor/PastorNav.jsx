@@ -35,6 +35,9 @@ function PastorNav({ onNavigate, Usuario }) {
           <button
             className="btn btn-link text-white me-2"
             style={{ fontSize: "0.50rem" }}
+            data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvasNotifications"
+            aria-controls="offcanvasNotifications"
           >
             <Bell />
           </button>

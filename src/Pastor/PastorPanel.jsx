@@ -39,6 +39,22 @@ function PastorPanel({ onNavigate }) {
                 </Col>
 
                 <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
+                    <Card className="hover-relief shadow-sm" style={{ cursor: 'pointer' }} onClick={() => onNavigate("mis_ministerios")}>
+                        <Card.Img
+                            variant="top"
+                            src="/ministerio.png"
+                            style={{ maxWidth: '100%', maxHeight: '100px', objectFit: 'contain', marginTop: '10px' }}
+                        />
+                        <Card.Body>
+                            <Card.Title>Administrar Ministerios</Card.Title>
+                            <Card.Text>
+                                Administrar reuniones y eventos de tus ministerios.
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                </Col>
+
+                <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
                     <Card className="hover-relief shadow-sm" style={{ cursor: 'pointer' }} onClick={() => onNavigate("eventos")}>
                         <Card.Img
                             variant="top"

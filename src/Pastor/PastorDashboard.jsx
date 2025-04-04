@@ -4,11 +4,13 @@ import API_URL from '../../Config';
 import PastorMenu from './PastorMenu';
 import PastorNav from './PastorNav';
 import PastorPanel from './PastorPanel';
+import PastorNotificationes from './PastorNotificationes';
 import AdministrarMiembros from "./gestion_miembros/AdministrarMiembros";
 import AdministrarCurso from "./curso_biblico/AdministrarCursos";
 import AdministrarFamiliasEvento from "./familias_evento/AdministrarFamiliasEvento";
 import AdministrarDiezmos from "./gestion_diezmos/AdministrarDiezmos";
 import AdministrarMinisterios from "./gestion_ministerios/AdministrarMinisterios";
+import AdministrarMisMinisterios from "./administrar_ministerios/AdministrarMisMinisterios";
 import AdministrarEventos from "./gestion_eventos/AdministrarEventos";
 import AdministrarReportes from "../Reportes/ReporteInicio";
 
@@ -63,6 +65,7 @@ const PastorDashboard = () => {
             "panel": "/pastor",
             "miembros": "/pastor/citi_miembros",
             "ministerios": "/pastor/citi_ministerios",
+            "mis_ministerios": "/pastor/citi_mis_ministerios",
             "eventos": "/pastor/citi_eventos",
             "diezmos": "/pastor/citi_diezmos",
             "curso": "/pastor/citi_curso",
@@ -82,6 +85,7 @@ const PastorDashboard = () => {
                         <Route index element={<PastorPanel onNavigate={handleNavigate} />} />
                         <Route path="citi_miembros" element={<AdministrarMiembros />} />
                         <Route path="citi_ministerios" element={<AdministrarMinisterios />} />
+                        <Route path="citi_mis_ministerios" element={<AdministrarMisMinisterios />} />
                         <Route path="citi_eventos" element={<AdministrarEventos />} />
                         <Route path="citi_diezmos" element={<AdministrarDiezmos />} />
                         <Route path="citi_curso" element={<AdministrarCurso />} />
@@ -90,6 +94,7 @@ const PastorDashboard = () => {
                     </Routes>
 
                 </div>
+                <PastorNotificationes />
                 <PastorMenu onNavigate={handleNavigate} Usuario={usuario} onLogout={handleLogout} />
             </div>
         </div>
