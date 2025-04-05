@@ -28,7 +28,7 @@ function TablaMiembros({ personas, onRefreshData, onVerDetalle, onEditar }) {
                 <td>{persona.apellidos}</td>
                 <td>{persona.celular}</td>
                 <td>{persona.numero_cedula}</td>
-                <td>a los que asiste</td>
+                <td>que tiene a cargo</td>
                 <td>
                   <div className="d-flex flex-wrap gap-2">
                     <button
@@ -42,6 +42,9 @@ function TablaMiembros({ personas, onRefreshData, onVerDetalle, onEditar }) {
                       onClick={() => onEditar(persona)}
                     >
                       Editar
+                    </button>
+                    <button className="btn btn-danger btn-sm">
+                      Deshabilitar
                     </button>
                   </div>
                 </td>

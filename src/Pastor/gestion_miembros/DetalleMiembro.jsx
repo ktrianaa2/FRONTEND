@@ -11,49 +11,46 @@ function DetalleMiembro({ idMiembro, onClose }) {
         const fetchMiembro = async () => {
             setLoading(true);
             try {
-                const token = localStorage.getItem("authToken");
+                const token = localStorage.getItem('authToken');
                 if (!token) {
                     throw new Error("No hay sesión activa");
                 }
-
-                const response = await fetch(`${API_URL}/Miembros/personas/`, {
+    
+                const response = await fetch(`${API_URL}/Miembros/personas/${idMiembro}/`, {
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${token}`,
                         "Content-Type": "application/json"
                     }
                 });
-
+    
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || "Error al obtener los datos");
                 }
-
+    
                 const data = await response.json();
-                const miembroEncontrado = data.personas.find(p => p.id_persona === idMiembro);
-
-                if (!miembroEncontrado) {
-                    throw new Error("Miembro no encontrado");
+                if (!data || !data.persona) {
+                    throw new Error("No se encontraron datos del miembro");
                 }
-
-                setMiembro(miembroEncontrado);
-
+                setMiembro(data.persona);
+                
             } catch (error) {
                 api.error({
-                    message: "Error",
-                    description: error.message,
+                    message: "Error en la API",
+                    description: error.response?.data?.error || error.message || "Hubo un problema al obtener los datos del miembro.",
                     duration: 4
                 });
             } finally {
                 setLoading(false);
             }
         };
-
+    
         if (idMiembro) {
             fetchMiembro();
         }
     }, [idMiembro]);
-
+    
     if (loading) return <div className="text-center my-4">Cargando datos del miembro...</div>;
 
     if (!miembro) return <div className="text-danger">No se encontró al miembro.</div>;
@@ -61,7 +58,7 @@ function DetalleMiembro({ idMiembro, onClose }) {
     return (
         <div className="card shadow p-4">
             {contextHolder}
-            <h4>Detalle del Miembro</h4>
+            <h4>Detalle del {miembro.rol}</h4>
             <hr />
             <p><strong>Nombre:</strong> {miembro.nombres} {miembro.apellidos}</p>
             <p><strong>Ministerios:</strong> ________ </p>
