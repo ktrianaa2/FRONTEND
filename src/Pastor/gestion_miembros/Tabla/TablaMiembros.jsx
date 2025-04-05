@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import FormularioEditarMiembro from "../Formularios/FormularioEditarMiembro";
 import { notification } from "antd";
 
-function TablaMiembros({ personas, onRefreshData }) {
+function TablaMiembros({ personas, onRefreshData, onVerDetalle }) {
   const [showEditForm, setShowEditForm] = useState(false);
   const [selectedMiembro, setSelectedMiembro] = useState(null);
   const [api, contextHolder] = notification.useNotification();
@@ -44,8 +44,6 @@ function TablaMiembros({ personas, onRefreshData }) {
     }
   };
 
-
-
   return (
     <div>
       {contextHolder}
@@ -55,19 +53,11 @@ function TablaMiembros({ personas, onRefreshData }) {
             <thead className="table-dark">
               <tr>
                 <th>ID</th>
-                <th>Cédula</th>
                 <th>Nombres</th>
                 <th>Apellidos</th>
-                <th>Fecha Nacimiento</th>
-                <th>Género</th>
                 <th>Celular</th>
-                <th>Dirección</th>
-                <th>Correo</th>
-                <th>Nivel Estudio</th>
-                <th>Nacionalidad</th>
-                <th>Profesión</th>
-                <th>Estado Civil</th>
-                <th>Lugar Trabajo</th>
+                <th>Cédula</th>
+                <th>Ministerios</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -75,21 +65,19 @@ function TablaMiembros({ personas, onRefreshData }) {
               {personas.map((persona) => (
                 <tr key={persona.id_persona}>
                   <td>{persona.id_persona}</td>
-                  <td>{persona.numero_cedula}</td>
                   <td>{persona.nombres}</td>
                   <td>{persona.apellidos}</td>
-                  <td>{persona.fecha_nacimiento}</td>
-                  <td>{persona.genero}</td>
                   <td>{persona.celular}</td>
-                  <td>{persona.direccion}</td>
-                  <td>{persona.correo_electronico}</td>
-                  <td>{persona.nivel_estudio}</td>
-                  <td>{persona.nacionalidad}</td>
-                  <td>{persona.profesion}</td>
-                  <td>{persona.estado_civil}</td>
-                  <td>{persona.lugar_trabajo}</td>
+                  <td>{persona.numero_cedula}</td>
+                  <td>a los que asiste</td>
                   <td>
-                    <div className="d-flex gap-2">
+                    <div className="d-flex flex-wrap gap-2">
+                      <button
+                        className="btn btn-info btn-sm"
+                        onClick={() => onVerDetalle(persona.id_persona)}
+                      >
+                        Ver Detalles
+                      </button>
                       <button
                         className="btn btn-warning btn-sm"
                         onClick={() => handleEditClick(persona)}

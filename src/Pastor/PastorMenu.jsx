@@ -40,6 +40,14 @@ function PastorMenu({ onNavigate, Usuario, onLogout }) {
           <li className="nav-item">
             <button
               className="nav-link btn"
+              onClick={() => onNavigate("usuarios")}
+            >
+              Gestión de Usuarios
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className="nav-link btn"
               onClick={() => onNavigate("ministerios")}
             >
               Gestión de Ministerios

@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import { notification } from "antd";
 import TablaMiembros from "./Tabla/TablaMiembros";
 import FormularioMiembro from "./Formularios/FormularioMiembro";
+import DetalleMiembro from "./DetalleMiembro";
 import API_URL from "../../../Config";
 
 function AdministrarMiembros() {
   const [search, setSearch] = useState("");
   const [personas, setPersonas] = useState([]);
+  const [miembroSeleccionadoId, setMiembroSeleccionadoId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [api, contextHolder] = notification.useNotification();
@@ -74,7 +76,12 @@ function AdministrarMiembros() {
       <h2 className="text-black">Administración de Miembros</h2>
       <hr />
 
-      {!mostrarFormulario && (
+      {miembroSeleccionadoId ? (
+        <DetalleMiembro
+          idMiembro={miembroSeleccionadoId}
+          onClose={() => setMiembroSeleccionadoId(null)}
+        />
+      ) : !mostrarFormulario ? (
         <div>
           <div className="d-flex justify-content-between mb-4">
             <input
@@ -89,7 +96,11 @@ function AdministrarMiembros() {
               onClick={toggleFormulario}
               disabled={loading}
             >
-              <i className={`bi ${mostrarFormulario ? "bi-x-circle" : "bi-plus-circle"} me-1`}></i>
+              <i
+                className={`bi ${
+                  mostrarFormulario ? "bi-x-circle" : "bi-plus-circle"
+                } me-1`}
+              ></i>
               {mostrarFormulario ? "Cancelar" : "Nuevo Miembro"}
             </button>
           </div>
@@ -101,12 +112,11 @@ function AdministrarMiembros() {
               personas={filteredPersonas}
               loading={loading}
               onRefreshData={fetchPersonas}
+              onVerDetalle={(id) => setMiembroSeleccionadoId(id)} // <- NUEVO
             />
           )}
         </div>
-      )}
-
-      {mostrarFormulario && (
+      ) : (
         <FormularioMiembro
           onClose={toggleFormulario}
           onSuccess={handleSuccess}

@@ -23,6 +23,22 @@ function PastorPanel({ onNavigate }) {
                 </Col>
 
                 <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
+                    <Card className="hover-relief shadow-sm" style={{ cursor: 'pointer' }} onClick={() => onNavigate("usuarios")}>
+                        <Card.Img
+                            variant="top"
+                            src="/usuarios.png"
+                            style={{ maxWidth: '100%', maxHeight: '100px', objectFit: 'contain', marginTop: '10px' }}
+                        />
+                        <Card.Body>
+                            <Card.Title>Gestión de Usuarios</Card.Title>
+                            <Card.Text>
+                                Administra los roles de los usuarios.
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                </Col>
+
+                <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
                     <Card className="hover-relief shadow-sm" style={{ cursor: 'pointer' }} onClick={() => onNavigate("ministerios")}>
                         <Card.Img
                             variant="top"

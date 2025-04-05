@@ -6,6 +6,7 @@ import PastorNav from './PastorNav';
 import PastorPanel from './PastorPanel';
 import PastorNotificationes from './PastorNotificationes';
 import AdministrarMiembros from "./gestion_miembros/AdministrarMiembros";
+import AdministrarUsuarios from "./gestion_usuarios/AdministrarUsuarios";
 import AdministrarCurso from "./curso_biblico/AdministrarCursos";
 import AdministrarFamiliasEvento from "./familias_evento/AdministrarFamiliasEvento";
 import AdministrarDiezmos from "./gestion_diezmos/AdministrarDiezmos";
@@ -64,6 +65,7 @@ const PastorDashboard = () => {
         const viewPathMap = {
             "panel": "/pastor",
             "miembros": "/pastor/citi_miembros",
+            "usuarios": "/pastor/citi_usuarios",
             "ministerios": "/pastor/citi_ministerios",
             "mis_ministerios": "/pastor/citi_mis_ministerios",
             "eventos": "/pastor/citi_eventos",
@@ -84,6 +86,7 @@ const PastorDashboard = () => {
                     <Routes>
                         <Route index element={<PastorPanel onNavigate={handleNavigate} />} />
                         <Route path="citi_miembros" element={<AdministrarMiembros />} />
+                        <Route path="citi_usuarios" element={<AdministrarUsuarios />} />
                         <Route path="citi_ministerios" element={<AdministrarMinisterios />} />
                         <Route path="citi_mis_ministerios" element={<AdministrarMisMinisterios />} />
                         <Route path="citi_eventos" element={<AdministrarEventos />} />
