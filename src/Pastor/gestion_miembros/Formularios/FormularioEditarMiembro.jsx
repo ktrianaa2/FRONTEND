@@ -100,214 +100,321 @@ function FormularioEditarMiembro({ miembro, onClose, onUpdateSuccess }) {
 
 
     return (
-        <Card className="shadow">
+        <div className="card shadow-lg border-0">
             {contextHolder}
-            <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
-                <h5 className="mb-0">Editar Miembro</h5>
-                <Button variant="light" size="sm" onClick={onClose}>
-                    Volver al listado
-                </Button>
-            </Card.Header>
-            <Card.Body>
-                <Form onSubmit={handleSubmit}>
-                    <Row>
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Cédula</Form.Label>
-                                <Form.Control
+            <div className="card-header bg-dark text-white py-3">
+                <h5 className="mb-0 fw-bold">
+                    <i className="bi bi-person-plus-fill me-2"></i>Editar Miembro
+                </h5>
+            </div>
+            <div className="card-body bg-light">
+                <form onSubmit={handleSubmit} className="p-2">
+                    <div className="row mb-3 g-3">
+                        <div className="col-md-6">
+                            <label htmlFor="nombres" className="form-label fw-bold text-dark">
+                                Nombres <span className="text-danger">*</span>
+                            </label>
+                            <div className="input-group">
+                                <span className="input-group-text bg-dark text-white">
+                                    <i className="bi bi-person-fill"></i>
+                                </span>
+                                <input
                                     type="text"
-                                    name="numero_cedula"
-                                    value={formData.numero_cedula}
-                                    onChange={handleChange}
-                                // Ya no es required
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Nombres</Form.Label>
-                                <Form.Control
-                                    type="text"
+                                    className="form-control"
+                                    id="nombres"
                                     name="nombres"
                                     value={formData.nombres}
                                     onChange={handleChange}
                                     required
                                 />
-                            </Form.Group>
-                        </Col>
-                    </Row>
-
-                    <Row>
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Apellidos</Form.Label>
-                                <Form.Control
+                            </div>
+                        </div>
+                        <div className="col-md-6">
+                            <label htmlFor="apellidos" className="form-label fw-bold text-dark">
+                                Apellidos <span className="text-danger">*</span>
+                            </label>
+                            <div className="input-group">
+                                <span className="input-group-text bg-dark text-white">
+                                    <i className="bi bi-person-fill"></i>
+                                </span>
+                                <input
                                     type="text"
+                                    className="form-control"
+                                    id="apellidos"
                                     name="apellidos"
                                     value={formData.apellidos}
                                     onChange={handleChange}
                                     required
                                 />
-                            </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Fecha de Nacimiento</Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    name="fecha_nacimiento"
-                                    value={formData.fecha_nacimiento}
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div className="row mb-3 g-3">
+                        <div className="col-md-6">
+                            <label htmlFor="numero_cedula" className="form-label fw-bold text-dark">
+                                Número de Cédula
+                            </label>
+                            <div className="input-group">
+                                <span className="input-group-text bg-dark text-white">
+                                    <i className="bi bi-card-text"></i>
+                                </span>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="numero_cedula"
+                                    name="numero_cedula"
+                                    value={formData.numero_cedula}
                                     onChange={handleChange}
-                                // Ya no es required
                                 />
-                            </Form.Group>
-                        </Col>
-                    </Row>
-
-                    <Row>
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Género</Form.Label>
-                                <Form.Select
+                            </div>
+                        </div>
+                        <div className="col-md-6">
+                            <label htmlFor="correo_electronico" className="form-label fw-bold text-dark">
+                                Correo Electrónico
+                            </label>
+                            <div className="input-group">
+                                <span className="input-group-text bg-dark text-white">
+                                    <i className="bi bi-envelope-fill"></i>
+                                </span>
+                                <input
+                                    type="email"
+                                    className="form-control"
+                                    id="correo_electronico"
+                                    name="correo_electronico"
+                                    value={formData.correo_electronico}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div className="row mb-3 g-3">
+                        <div className="col-md-6">
+                            <label htmlFor="genero" className="form-label fw-bold text-dark">
+                                Género
+                            </label>
+                            <div className="input-group">
+                                <span className="input-group-text bg-dark text-white">
+                                    <i className="bi bi-gender-ambiguous"></i>
+                                </span>
+                                <select
+                                    className="form-select"
+                                    id="genero"
                                     name="genero"
                                     value={formData.genero}
                                     onChange={handleChange}
-                                // Ya no es required
                                 >
-                                    <option value="">Seleccionar</option>
+                                    <option value="">Seleccionar...</option>
                                     <option value="Masculino">Masculino</option>
                                     <option value="Femenino">Femenino</option>
-                                </Form.Select>
-                            </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Celular</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="celular"
-                                    value={formData.celular}
+                                </select>
+                            </div>
+                        </div>
+                        <div className="col-md-6">
+                            <label htmlFor="fecha_nacimiento" className="form-label fw-bold text-dark">
+                                Fecha de Nacimiento
+                            </label>
+                            <div className="input-group">
+                                <span className="input-group-text bg-dark text-white">
+                                    <i className="bi bi-calendar-date"></i>
+                                </span>
+                                <input
+                                    type="date"
+                                    className="form-control"
+                                    id="fecha_nacimiento"
+                                    name="fecha_nacimiento"
+                                    value={formData.fecha_nacimiento}
                                     onChange={handleChange}
-                                // Ya no es required
                                 />
-                            </Form.Group>
-                        </Col>
-                    </Row>
-
-                    <Form.Group className="mb-3">
-                        <Form.Label>Dirección</Form.Label>
-                        <Form.Control
-                            type="text"
-                            name="direccion"
-                            value={formData.direccion}
-                            onChange={handleChange}
-                        // Ya no es required
-                        />
-                    </Form.Group>
-
-                    <Form.Group className="mb-3">
-                        <Form.Label>Correo Electrónico</Form.Label>
-                        <Form.Control
-                            type="email"
-                            name="correo_electronico"
-                            value={formData.correo_electronico}
-                            onChange={handleChange}
-                        // Ya no es required
-                        />
-                    </Form.Group>
-
-                    <Row>
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Nivel de Estudio</Form.Label>
-                                <Form.Select
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div className="row mb-3 g-3">
+                        <div className="col-md-6">
+                            <label htmlFor="nacionalidad" className="form-label fw-bold text-dark">
+                                Nacionalidad
+                            </label>
+                            <div className="input-group">
+                                <span className="input-group-text bg-dark text-white">
+                                    <i className="bi bi-globe"></i>
+                                </span>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="nacionalidad"
+                                    name="nacionalidad"
+                                    value={formData.nacionalidad}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        </div>
+                        <div className="col-md-6">
+                            <label htmlFor="estado_civil" className="form-label fw-bold text-dark">
+                                Estado Civil
+                            </label>
+                            <div className="input-group">
+                                <span className="input-group-text bg-dark text-white">
+                                    <i className="bi bi-people-fill"></i>
+                                </span>
+                                <select
+                                    className="form-select"
+                                    id="estado_civil"
+                                    name="estado_civil"
+                                    value={formData.estado_civil}
+                                    onChange={handleChange}
+                                >
+                                    <option value="">Seleccionar...</option>
+                                    <option value="Soltero/a">Soltero/a</option>
+                                    <option value="Casado/a">Casado/a</option>
+                                    <option value="Divorciado/a">Divorciado/a</option>
+                                    <option value="Viudo/a">Viudo/a</option>
+                                    <option value="Unión libre">Unión libre</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div className="row mb-3 g-3">
+                        <div className="col-md-6">
+                            <label htmlFor="nivel_estudio" className="form-label fw-bold text-dark">
+                                Nivel de Estudio
+                            </label>
+                            <div className="input-group">
+                                <span className="input-group-text bg-dark text-white">
+                                    <i className="bi bi-book-fill"></i>
+                                </span>
+                                <select
+                                    className="form-select"
+                                    id="nivel_estudio"
                                     name="nivel_estudio"
                                     value={formData.nivel_estudio}
                                     onChange={handleChange}
-                                // Remove the required attribute
                                 >
-                                    <option value="">Seleccionar</option>
+                                    <option value="">Seleccionar...</option>
                                     <option value="Primaria">Primaria</option>
                                     <option value="Secundaria">Secundaria</option>
                                     <option value="Técnico">Técnico</option>
                                     <option value="Universidad">Universidad</option>
                                     <option value="Postgrado">Postgrado</option>
                                     <option value="Ninguno">Ninguno</option>
-                                </Form.Select>
-                            </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Nacionalidad</Form.Label>
-                                <Form.Control
+                                </select>
+                            </div>
+                        </div>
+                        <div className="col-md-6">
+                            <label htmlFor="profesion" className="form-label fw-bold text-dark">
+                                Profesión
+                            </label>
+                            <div className="input-group">
+                                <span className="input-group-text bg-dark text-white">
+                                    <i className="bi bi-briefcase-fill"></i>
+                                </span>
+                                <input
                                     type="text"
-                                    name="nacionalidad"
-                                    value={formData.nacionalidad}
-                                    onChange={handleChange}
-                                // Also remove required from here
-                                />
-                            </Form.Group>
-                        </Col>
-                    </Row>
-
-                    <Row>
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Profesión</Form.Label>
-                                <Form.Control
-                                    type="text"
+                                    className="form-control"
+                                    id="profesion"
                                     name="profesion"
                                     value={formData.profesion}
                                     onChange={handleChange}
                                 />
-                            </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Estado Civil</Form.Label>
-                                <Form.Select
-                                    name="estado_civil"
-                                    value={formData.estado_civil}
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div className="row mb-3 g-3">
+                        <div className="col-md-6">
+                            <label htmlFor="lugar_trabajo" className="form-label fw-bold text-dark">
+                                Lugar de Trabajo
+                            </label>
+                            <div className="input-group">
+                                <span className="input-group-text bg-dark text-white">
+                                    <i className="bi bi-building"></i>
+                                </span>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="lugar_trabajo"
+                                    name="lugar_trabajo"
+                                    value={formData.lugar_trabajo}
                                     onChange={handleChange}
-                                // Remove required from here too
-                                >
-                                    <option value="">Seleccionar</option>
-                                    <option value="Soltero/a">Soltero/a</option>
-                                    <option value="Casado/a">Casado/a</option>
-                                    <option value="Divorciado/a">Divorciado/a</option>
-                                    <option value="Viudo/a">Viudo/a</option>
-                                    <option value="Unión libre">Unión libre</option>
-                                </Form.Select>
-                            </Form.Group>
-                        </Col>
-                    </Row>
-
-                    <Form.Group className="mb-3">
-                        <Form.Label>Lugar de Trabajo</Form.Label>
-                        <Form.Control
-                            type="text"
-                            name="lugar_trabajo"
-                            value={formData.lugar_trabajo}
-                            onChange={handleChange}
-                        />
-                    </Form.Group>
-
-                    <div className="d-flex justify-content-between mt-4">
-                        <Button variant="secondary" onClick={onClose}>
-                            Cancelar
-                        </Button>
-                        <Button
-                            variant="primary"
-                            type="submit"
+                                />
+                            </div>
+                        </div>
+                        <div className="col-md-6">
+                            <label htmlFor="direccion" className="form-label fw-bold text-dark">
+                                Dirección
+                            </label>
+                            <div className="input-group">
+                                <span className="input-group-text bg-dark text-white">
+                                    <i className="bi bi-house-door-fill"></i>
+                                </span>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="direccion"
+                                    name="direccion"
+                                    value={formData.direccion}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div className="row mb-3 g-3">
+                        <div className="col-md-6">
+                            <label htmlFor="celular" className="form-label fw-bold text-dark">
+                                Celular
+                            </label>
+                            <div className="input-group">
+                                <span className="input-group-text bg-dark text-white">
+                                    <i className="bi bi-phone-fill"></i>
+                                </span>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="celular"
+                                    name="celular"
+                                    value={formData.celular}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div className="d-flex justify-content-end gap-2">
+                        <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={onClose}
                             disabled={loading}
                         >
-                            {loading ? "Guardando..." : "Guardar Cambios"}
-                        </Button>
+                            Cancelar
+                        </button>
+    
+                        <button
+                            type="submit"
+                            className="btn btn-success px-4 py-2"
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <>
+                                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    Guardando...
+                                </>
+                            ) : (
+                                <>
+                                    <i className="bi bi-save-fill me-2"></i>
+                                    Guardar
+                                </>
+                            )}
+                        </button>
                     </div>
-                </Form>
-            </Card.Body>
-        </Card>
+                </form>
+            </div>
+        </div>
     );
+    
 }
 
 export default FormularioEditarMiembro;

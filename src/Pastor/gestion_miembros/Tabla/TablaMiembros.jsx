@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import FormularioEditarMiembro from "../Formularios/FormularioEditarMiembro";
 import { notification } from "antd";
 
-function TablaMiembros({ personas, onRefreshData, onVerDetalle }) {
+function TablaMiembros({ personas, onRefreshData, onVerDetalle, onEditar }) {
   const [showEditForm, setShowEditForm] = useState(false);
   const [selectedMiembro, setSelectedMiembro] = useState(null);
   const [api, contextHolder] = notification.useNotification();
@@ -73,14 +73,14 @@ function TablaMiembros({ personas, onRefreshData, onVerDetalle }) {
                   <td>
                     <div className="d-flex flex-wrap gap-2">
                       <button
-                        className="btn btn-info btn-sm"
+                        className="btn btn-secondary btn-sm"
                         onClick={() => onVerDetalle(persona.id_persona)}
                       >
                         Ver Detalles
                       </button>
                       <button
                         className="btn btn-warning btn-sm"
-                        onClick={() => handleEditClick(persona)}
+                        onClick={() => onEditar(persona)}
                       >
                         Editar
                       </button>
