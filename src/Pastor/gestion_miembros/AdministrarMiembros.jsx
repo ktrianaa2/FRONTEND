@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { notification } from "antd";
 import TablaMiembros from "./Tabla/TablaMiembros";
 import FormularioMiembro from "./Formularios/FormularioMiembro";
 import API_URL from "../../../Config";
 
 function AdministrarMiembros() {
+  const [search, setSearch] = useState("");
   const [personas, setPersonas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -63,18 +64,28 @@ function AdministrarMiembros() {
     });
   };
 
+  const filteredPersonas = personas.filter((persona) =>
+    `${persona.nombres} ${persona.apellidos} ${persona.numero_cedula}`.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className="container-fluid py-4">
+    <div>
       {contextHolder}
-      <div className="row mb-4">
-        <div className="col">
-          <div className="d-flex justify-content-between align-items-center">
-            <h2 className="text-primary">
-              <i className="bi bi-people-fill me-2"></i>
-              Administración de Miembros
-            </h2>
+      <h2 className="text-black">Administración de Miembros</h2>
+      <hr />
+
+      {!mostrarFormulario && (
+        <div>
+          <div className="d-flex justify-content-between mb-4">
+            <input
+              type="text"
+              placeholder="Buscar miembro"
+              className="form-control w-50 shadow-sm"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
             <button
-              className="btn btn-success"
+              className="btn btn-success text-white shadow-sm"
               onClick={toggleFormulario}
               disabled={loading}
             >
@@ -82,19 +93,23 @@ function AdministrarMiembros() {
               {mostrarFormulario ? "Cancelar" : "Nuevo Miembro"}
             </button>
           </div>
-        </div>
-      </div>
 
-      {mostrarFormulario ? (
+          {loading ? (
+            <div className="text-center my-4">Cargando miembros...</div>
+          ) : (
+            <TablaMiembros
+              personas={filteredPersonas}
+              loading={loading}
+              onRefreshData={fetchPersonas}
+            />
+          )}
+        </div>
+      )}
+
+      {mostrarFormulario && (
         <FormularioMiembro
           onClose={toggleFormulario}
           onSuccess={handleSuccess}
-        />
-      ) : (
-        <TablaMiembros
-          personas={personas}
-          loading={loading}
-          onRefreshData={fetchPersonas}
         />
       )}
     </div>
