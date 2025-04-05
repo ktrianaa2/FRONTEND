@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Button, Form, Row, Col, Alert, Card } from "react-bootstrap";
 import { notification } from "antd";
 import API_URL from "../../../../Config";
 
@@ -413,8 +412,7 @@ function FormularioEditarMiembro({ miembro, onClose, onUpdateSuccess }) {
                 </form>
             </div>
         </div>
-    );
-    
+    );  
 }
 
 export default FormularioEditarMiembro;

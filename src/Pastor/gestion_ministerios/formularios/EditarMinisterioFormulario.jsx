@@ -150,110 +150,135 @@ function EditarMinisterioFormulario({ ministerio, onClose }) {
   }
 
   return (
-    <div>
+    <div className="card shadow-lg border-0">
       {contextHolder}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label className="form-label">Nombre del Ministerio</label>
-          <input
-            type="text"
-            className="form-control"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Descripción</label>
-          <textarea
-            className="form-control"
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-          />
-        </div>
-
-        {/* Líder(es) */}
-        <div className="mb-3">
-          <label className="form-label">Líder(es)</label>
-          <div className="d-flex justify-content-between">
-            <select
-              className="form-select w-75"
-              value={selectedLider}
-              onChange={(e) => setSelectedLider(e.target.value)}
-              disabled={lideres.length >= 2}
-            >
-              <option value="">Seleccionar líder</option>
-              {personasDisponibles
-                .filter(p => !lideres.some(l => l.id === p.id_persona))
-                .map((persona) => (
-                  <option
-                    key={persona.id_persona}
-                    value={persona.id_persona}
-                  >
-                    {`${persona.nombres} ${persona.apellidos} (${persona.numero_cedula})`}
-                  </option>
-                ))}
-            </select>
-            <button
-              type="button"
-              className="btn btn-primary ms-2"
-              onClick={handleAddLider}
-              disabled={!selectedLider || lideres.length >= 2}
-            >
-              +
-            </button>
-          </div>
-
-          {/* Mostrar errores de líderes */}
-          {errorLideres && (
-            <div className="alert alert-danger mt-2">
-              {errorLideres}
+      <div className="card-header bg-dark text-white py-3">
+        <h5 className="mb-0 fw-bold"><i className="bi bi-building-fill me-2"></i>Agregar Nuevo Ministerio</h5>
+      </div>
+      <div className="card-body bg-light">
+        <form onSubmit={handleSubmit} className="p-2">
+          <div className="mb-3 g-3">
+            <label htmlFor="nombre" className="form-label fw-bold text-dark">
+              Nombre del Ministerio <span className="text-danger">*</span>
+            </label>
+            <div className="input-group">
+              <span className="input-group-text bg-dark text-white"><i className="bi bi-building"></i></span>
+              <input
+                type="text"
+                className="form-control"
+                id="nombre"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                required
+              />
             </div>
-          )}
-
-          {/* Mostrar líderes actuales */}
-          <div className="mt-2">
-            {lideres.length > 0 && (
-              <ul className="list-group">
-                {lideres.map((lider) => (
-                  <li
-                    key={lider.id}
-                    className="list-group-item d-flex justify-content-between align-items-center"
-                  >
-                    {`${lider.nombreCompleto} (${lider.cedula})`}
-                    <button
-                      type="button"
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleRemoveLider(lider.id)}
+          </div>
+  
+          <div className="mb-3">
+            <label htmlFor="descripcion" className="form-label fw-bold text-dark">
+              Descripción <span className="text-danger">*</span>
+            </label>
+            <div className="input-group">
+              <span className="input-group-text bg-dark text-white"><i className="bi bi-file-earmark-text"></i></span>
+              <textarea
+                className="form-control"
+                id="descripcion"
+                value={descripcion}
+                onChange={(e) => setDescripcion(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+  
+          {/* Líder(es) */}
+          <div className="mb-3 g-3">
+            <label className="form-label fw-bold text-dark">
+              Líder(es) (Máximo 2)
+            </label>
+            <div className="d-flex justify-content-between">
+              <select
+                className="form-select w-75"
+                value={selectedLider}
+                onChange={(e) => setSelectedLider(e.target.value)}
+                disabled={lideres.length >= 2}
+              >
+                <option value="">Seleccionar líder</option>
+                {personasDisponibles
+                  .filter(p => !lideres.some(l => l.id === p.id_persona))
+                  .map((persona) => (
+                    <option
+                      key={persona.id_persona}
+                      value={persona.id_persona}
                     >
-                      &times;
-                    </button>
-                  </li>
-                ))}
-              </ul>
+                      {`${persona.nombres} ${persona.apellidos} (${persona.numero_cedula})`}
+                    </option>
+                  ))}
+              </select>
+              <button
+                type="button"
+                className="btn btn-success ms-2"
+                onClick={handleAddLider}
+                disabled={!selectedLider || lideres.length >= 2}
+              >
+                +
+              </button>
+            </div>
+  
+            {/* Mostrar errores de líderes */}
+            {errorLideres && (
+              <div className="alert alert-danger mt-2">
+                {errorLideres}
+              </div>
+            )}
+  
+            {/* Mostrar líderes actuales */}
+            <div className="mt-2">
+              {lideres.length > 0 && (
+                <ul className="list-group">
+                  {lideres.map((lider) => (
+                    <li
+                      key={lider.id}
+                      className="list-group-item d-flex justify-content-between align-items-center"
+                    >
+                      {`${lider.nombreCompleto} (${lider.cedula})`}
+                      <button
+                        type="button"
+                        className="btn btn-danger btn-sm"
+                        onClick={() => handleRemoveLider(lider.id)}
+                      >
+                        &times;
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            {lideres.length >= 2 && (
+              <small className="text-muted">Máximo 2 líderes permitidos</small>
             )}
           </div>
-          {lideres.length >= 2 && (
-            <small className="text-muted">Máximo 2 líderes permitidos</small>
-          )}
-        </div>
-
-        <div className="d-flex justify-content-end">
-          <button type="submit" className="btn btn-success text-white">
-            Guardar Cambios
-          </button>
-          <button
-            type="button"
-            className="btn btn-secondary ms-2"
-            onClick={() => onClose(false)}
-          >
-            Cancelar
-          </button>
-        </div>
-      </form>
+  
+          <div className="d-flex justify-content-end gap-2">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => onClose(false)}
+            >
+              Cancelar
+            </button>
+  
+            <button
+              type="submit"
+              className="btn btn-success text-white"
+            >
+              Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
+  
 }
 
 export default EditarMinisterioFormulario;

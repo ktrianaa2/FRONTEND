@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import MinisteriosTabla from "./tablas/MinisteriosTabla";
-import AgregarMinisterio from "./AgregarMinisterio";
-import EditarMinisterio from "./EditarMinisterio";
+import AgregarMinisterioFormulario from "./formularios/AgregarMinisterioFormulario";
+import EditarMinisterioFormulario from "./formularios/EditarMinisterioFormulario";
+import DetallesMinisterio from "./DetallesMinisterio";
 import ModalDeshabilitar from "./modales/ModalDeshabilitar";
 import API_URL from "../../../Config";
 import { notification } from "antd";
@@ -66,6 +67,10 @@ function AdministrarMinisterios() {
     const handleDisable = (ministerio) => {
         setSelectedMinisterio(ministerio);
         setIsDisableModalOpen(true);
+    };
+    const onVerDetalles = (idMinisterio) => {
+        const ministerio = ministerios.find((m) => m.id_ministerio === idMinisterio);
+        setSelectedMinisterio(ministerio);
     };
 
     const confirmDisable = async (ministerio) => {
@@ -140,7 +145,7 @@ function AdministrarMinisterios() {
             <h2 className="text-black">Administración de Ministerios</h2>
             <hr />
 
-            {!isAgregarOpen && !isEditarOpen && (
+            {(!isAgregarOpen && !isEditarOpen && !selectedMinisterio) && (
                 <div>
                     <div className="d-flex justify-content-between mb-4">
                         <input
@@ -165,16 +170,20 @@ function AdministrarMinisterios() {
                             filteredMinisterios={filteredMinisterios}
                             handleEdit={handleEdit}
                             handleDisable={handleDisable}
+                            onVerDetalles={onVerDetalles}  // Aquí pasamos la función
                         />
                     )}
                 </div>
             )}
 
-            {isAgregarOpen && <AgregarMinisterio onClose={handleAgregarClose} />}
+            {isAgregarOpen && <AgregarMinisterioFormulario onClose={handleAgregarClose} />}
             {isEditarOpen && (
-                <EditarMinisterio
+                <EditarMinisterioFormulario
                     ministerio={selectedMinisterio}
-                    onClose={handleEditarClose}
+                    onClose={(updated = false) => {
+                        handleEditarClose(updated);
+                        if (!updated) setSelectedMinisterio(null); // Si no se editó, cerramos los detalles
+                    }}
                 />
             )}
             {isDisableModalOpen && (
@@ -184,8 +193,12 @@ function AdministrarMinisterios() {
                     onConfirm={confirmDisable}
                 />
             )}
+            {selectedMinisterio && !isAgregarOpen && !isEditarOpen && (
+                <DetallesMinisterio idMinisterio={selectedMinisterio.id_ministerio} onClose={() => setSelectedMinisterio(null)} />
+            )}
         </div>
     );
+
 }
 
 export default AdministrarMinisterios;

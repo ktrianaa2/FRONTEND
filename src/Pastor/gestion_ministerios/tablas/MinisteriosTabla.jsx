@@ -1,6 +1,6 @@
 import React from "react";
 
-function MinisteriosTabla({ filteredMinisterios, handleEdit, handleDisable }) {
+function MinisteriosTabla({ filteredMinisterios, handleEdit, handleDisable, onVerDetalles }) {
   // Función para formatear los nombres de los líderes
   const formatLideres = (lider1, lider2) => {
     const lideres = [];
@@ -54,6 +54,12 @@ function MinisteriosTabla({ filteredMinisterios, handleEdit, handleDisable }) {
               </td>
               <td>
                 <div className="d-flex gap-2">
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => onVerDetalles(ministerio.id_ministerio)}
+                  >
+                    Ver Detalles
+                  </button>
                   <button
                     className="btn btn-warning btn-sm"
                     onClick={() => handleEdit(ministerio)}
