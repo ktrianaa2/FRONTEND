@@ -1,5 +1,5 @@
 import React from "react";
-import '../Styles.css';
+import '../Styles/Panel.css';
 import { Card, Row, Col } from "react-bootstrap";
 
 function PastorPanel({ onNavigate }) {
@@ -81,6 +81,22 @@ function PastorPanel({ onNavigate }) {
                             <Card.Title>Gestión de Eventos</Card.Title>
                             <Card.Text>
                                 Organiza y gestiona eventos y actividades.
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                </Col>
+
+                <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
+                    <Card className="hover-relief shadow-sm" style={{ cursor: 'pointer' }} onClick={() => onNavigate("calendario")}>
+                        <Card.Img
+                            variant="top"
+                            src="/calendario.png"
+                            style={{ maxWidth: '100%', maxHeight: '100px', objectFit: 'contain', marginTop: '10px' }}
+                        />
+                        <Card.Body>
+                            <Card.Title>Calendario de Actividades</Card.Title>
+                            <Card.Text>
+                                Vista detallada de la agenda.
                             </Card.Text>
                         </Card.Body>
                     </Card>

@@ -12,8 +12,10 @@ import AdministrarFamiliasEvento from "./familias_evento/AdministrarFamiliasEven
 import AdministrarDiezmos from "./gestion_diezmos/AdministrarDiezmos";
 import AdministrarMinisterios from "./gestion_ministerios/AdministrarMinisterios";
 import AdministrarMisMinisterios from "./administrar_ministerios/AdministrarMisMinisterios";
-import AdministrarEventos from "./gestion_eventos/AdministrarEventos";
 import AdministrarReportes from "../Reportes/ReporteInicio";
+import AdministrarEventos from './gestion_eventos/AdministrarEventos';
+import CalendarioActividades from "./calendario_actividades/CalendarioActividades";
+
 
 const PastorDashboard = () => {
     const navigate = useNavigate();
@@ -68,6 +70,7 @@ const PastorDashboard = () => {
             "usuarios": "/pastor/citi_usuarios",
             "ministerios": "/pastor/citi_ministerios",
             "mis_ministerios": "/pastor/citi_mis_ministerios",
+            "calendario": "/pastor/citi_calendario",
             "eventos": "/pastor/citi_eventos",
             "diezmos": "/pastor/citi_diezmos",
             "curso": "/pastor/citi_curso",
@@ -89,6 +92,7 @@ const PastorDashboard = () => {
                         <Route path="citi_usuarios" element={<AdministrarUsuarios />} />
                         <Route path="citi_ministerios" element={<AdministrarMinisterios />} />
                         <Route path="citi_mis_ministerios" element={<AdministrarMisMinisterios />} />
+                        <Route path="citi_calendario" element={<CalendarioActividades />} />
                         <Route path="citi_eventos" element={<AdministrarEventos />} />
                         <Route path="citi_diezmos" element={<AdministrarDiezmos />} />
                         <Route path="citi_curso" element={<AdministrarCurso />} />

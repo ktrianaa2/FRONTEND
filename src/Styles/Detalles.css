@@ -1,0 +1,51 @@
+.detalle-evento-container {
+    max-width: 600px;
+    margin: auto;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.titulo {
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+}
+
+.btn-cerrar {
+    padding: 6px 12px;
+    font-size: 14px;
+    border: none;
+    background-color: transparent;
+    color: #888;
+    cursor: pointer;
+}
+
+.btn-cerrar:hover {
+    color: #333;
+}
+
+.detalle-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.detalle-label {
+    font-weight: bold;
+    width: 120px;
+    font-size: 16px;
+    color: #555;
+}
+
+.detalle-info {
+    font-size: 16px;
+    color: #444;
+    margin-left: 8px;
+}
+
+.detalle-info p {
+    margin-top: 4px;
+    color: #666;
+    font-size: 14px;
+}

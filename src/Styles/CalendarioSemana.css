@@ -1,0 +1,139 @@
+/* Contenedor principal */
+.semana-lista-container {
+    padding: 1rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Título */
+.semana-titulo {
+    text-align: center;
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-weight: 500;
+}
+
+/* Lista de días */
+.dias-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Item de día */
+.dia-item-container {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+/* Encabezado del día */
+.dia-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 4px solid transparent;
+}
+
+.dia-header:hover {
+    background-color: #f8fafc;
+}
+
+.dia-seleccionado {
+    border-left-color: #2b99e2;
+    background-color: #f0f4ff;
+}
+
+.dia-nombre {
+    font-weight: 500;
+    color: #1e293b;
+}
+
+.evento-contador {
+    background-color: #2b99e2;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* Lista de eventos */
+.eventos-lista {
+    padding: 0.5rem 1rem 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background-color: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Items de eventos */
+.evento-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: white;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.evento-item:hover {
+    background-color: #f8fafc;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.evento-nombre {
+    font-weight: 500;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.evento-ministerio {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.evento-ministerio span {
+    font-weight: 600;
+}
+
+.evento-descripcion {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+    line-height: 1.4;
+}
+
+/* Mensaje cuando no hay eventos */
+.sin-eventos {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    text-align: center;
+    padding: 0.5rem;
+    font-style: italic;
+}
