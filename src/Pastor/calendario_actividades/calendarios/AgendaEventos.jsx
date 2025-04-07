@@ -5,37 +5,38 @@ const diasSemana = ["domingo", "lunes", "martes", "miércoles", "jueves", "viern
 const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 
 const formatearFecha = (fechaStr) => {
-  const fecha = new Date(fechaStr);
-  const diaSemana = diasSemana[fecha.getDay()];
-  const dia = fecha.getDate();
-  const mes = meses[fecha.getMonth()];
+  const fecha = new Date(fechaStr + 'T00:00:00');  
+  const diaSemana = diasSemana[fecha.getUTCDay()];  
+  const dia = fecha.getUTCDate();  
+  const mes = meses[fecha.getUTCMonth()];  
   return `${diaSemana}, ${dia} ${mes}`;
+};
+
+const formatearParaComparar = (fechaStr) => {
+  const fecha = new Date(fechaStr);
+  return fecha.toISOString().split('T')[0]; 
 };
 
 const esHoy = (fechaStr) => {
   const hoy = new Date();
-  const fecha = new Date(fechaStr);
-  return fecha.toDateString() === hoy.toDateString();
+  return formatearParaComparar(fechaStr) === formatearParaComparar(hoy);
 };
 
 const esManana = (fechaStr) => {
   const hoy = new Date();
   const manana = new Date(hoy);
   manana.setDate(hoy.getDate() + 1);
-  const fecha = new Date(fechaStr);
-  return fecha.toDateString() === manana.toDateString();
+  return formatearParaComparar(fechaStr) === formatearParaComparar(manana);
 };
 
 const esFutura = (fechaStr) => {
   const hoy = new Date();
-  const fecha = new Date(fechaStr);
-  return fecha >= new Date(hoy.toDateString());
+  return formatearParaComparar(fechaStr) >= formatearParaComparar(hoy);
 };
 
 const esPasada = (fechaStr) => {
   const hoy = new Date();
-  const fecha = new Date(fechaStr);
-  return fecha < new Date(hoy.toDateString());
+  return formatearParaComparar(fechaStr) < formatearParaComparar(hoy);
 };
 
 const AgendaEventos = ({ eventos, onEventoClick }) => {

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import '../../../Styles/CalendarioMes.css';
 
-
 const MesEventos = ({ date, eventos, onEventoClick }) => {
     const [activeTooltip, setActiveTooltip] = useState(null);
     const [tooltipTarget, setTooltipTarget] = useState(null);
@@ -70,11 +69,11 @@ const MesEventos = ({ date, eventos, onEventoClick }) => {
     // Obtener eventos del día
     const eventosDelDia = (dayDate) => {
         return eventos.filter((evento) => {
-            const eventoFecha = new Date(evento.fecha);
+            const eventoFecha = new Date(evento.fecha + 'T00:00:00'); // Añadir 'T00:00:00' para corregir la zona horaria
             return (
-                eventoFecha.getDate() === dayDate.getDate() &&
-                eventoFecha.getMonth() === dayDate.getMonth() &&
-                eventoFecha.getFullYear() === dayDate.getFullYear()
+                eventoFecha.getUTCDate() === dayDate.getUTCDate() &&
+                eventoFecha.getUTCMonth() === dayDate.getUTCMonth() &&
+                eventoFecha.getUTCFullYear() === dayDate.getUTCFullYear()
             );
         });
     };
@@ -120,7 +119,6 @@ const MesEventos = ({ date, eventos, onEventoClick }) => {
                             {daysArray.slice(weekIndex * 7, (weekIndex + 1) * 7).map((dayObj, dayIndex) => {
                                 const eventosDia = eventosDelDia(dayObj.date);
                                 const dayKey = `${weekIndex}-${dayIndex}`;
-
 
                                 return (
                                     <td

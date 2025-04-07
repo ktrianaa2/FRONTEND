@@ -24,11 +24,11 @@ const SemanaEventos = ({ date, eventos, onEventoClick }) => {
   // Obtener eventos del día
   const getEventsForDay = (day) => {
     return eventos.filter(evento => {
-      const eventoDate = new Date(evento.fecha);
+      const eventoDate = new Date(evento.fecha + 'T00:00:00'); // Añadimos 'T00:00:00' para corregir posibles problemas de zona horaria
       return (
-        eventoDate.getDate() === day.getDate() &&
-        eventoDate.getMonth() === day.getMonth() &&
-        eventoDate.getFullYear() === day.getFullYear()
+        eventoDate.getUTCDate() === day.getUTCDate() &&
+        eventoDate.getUTCMonth() === day.getUTCMonth() &&
+        eventoDate.getUTCFullYear() === day.getUTCFullYear()
       );
     });
   };
@@ -66,7 +66,7 @@ const SemanaEventos = ({ date, eventos, onEventoClick }) => {
                 onClick={() => handleDayClick(day)}
               >
                 <span className="dia-nombre">
-                  {dayName.charAt(0).toUpperCase() + dayName.slice(1)} {day.getDate()}
+                  {dayName.charAt(0).toUpperCase() + dayName.slice(1)} {day.getUTCDate()}
                 </span>
                 {dayEvents.length > 0 && (
                   <span className="evento-contador">[{dayEvents.length}]</span>
