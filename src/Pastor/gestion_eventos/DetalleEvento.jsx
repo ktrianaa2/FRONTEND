@@ -10,7 +10,7 @@ function DetalleEvento({ idEvento, onClose }) {
     useEffect(() => {
         const fetchEvento = async () => {
             try {
-                const token = localStorage.getItem('token'); // o desde contexto si lo usas
+                const token = localStorage.getItem('authToken'); // o desde contexto si lo usas
                 const response = await fetch(`${API_URL}/Eventos/eventos/${idEvento}`, {
                     method: 'GET',
                     headers: {
