@@ -1,11 +1,9 @@
-// aqui deben verse solo los liders y pastores, es decir los que tienen un usuario asignado
-// solo aqui se pueden habilitar, deshabilitar y reiniciar las credenciales de los usuarios
-
 import React, { useState, useEffect } from "react";
 import { notification } from "antd";
 import TablaUsuarios from "./Tabla/TablaUsuarios";
 import FormularioEditarMiembro from "../gestion_miembros/Formularios/FormularioEditarMiembro";
 import DetalleMiembro from "../gestion_miembros/DetalleMiembro";
+import ModalSeleccionPersona from "./Modales/ModalSeleccionPersona";
 import API_URL from "../../../Config";
 
 function AdministrarMiembros() {
@@ -16,45 +14,62 @@ function AdministrarMiembros() {
     const [showEditForm, setShowEditForm] = useState(false);
     const [selectedMiembro, setSelectedMiembro] = useState(null);
     const [api, contextHolder] = notification.useNotification();
+    const [showModal, setShowModal] = useState(false);
+    const [modalType, setModalType] = useState(null);
 
     const fetchPersonas = async () => {
         try {
             setLoading(true);
             const token = localStorage.getItem('authToken');
-
-            if (!token) {
-                throw new Error('No hay sesión activa');
-            }
-
-            const response = await fetch(`${API_URL}/Miembros/personas/`, {
+    
+            if (!token) throw new Error('No hay sesión activa');
+    
+            const response = await fetch(`${API_URL}/Miembros/personas_usuario/`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
-
+    
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Error al obtener los datos');
             }
-
+    
             const data = await response.json();
-            setPersonas(data.personas);
+            setPersonas(Array.isArray(data.personas_con_usuario) ? data.personas_con_usuario : []);
         } catch (err) {
             api.error({
                 message: 'Error',
                 description: err.message,
                 duration: 5,
             });
+            setPersonas([]);
         } finally {
             setLoading(false);
         }
     };
 
+    const handleOpenModal = (type) => {
+        setModalType(type);
+        setShowModal(true);
+    };
+
+    const handlePersonaSeleccionada = (persona) => {
+        api.success({
+            message: 'Persona seleccionada',
+            description: `${persona.nombres} ${persona.apellidos} ha sido seleccionada para ser ${modalType === 'pastor' ? 'pastor' : 'líder'}`,
+            duration: 3,
+        });
+        setShowModal(false);
+        // Aquí puedes agregar la lógica para guardar el nuevo rol
+    };
+
     useEffect(() => {
         fetchPersonas();
     }, []);
+
 
     const handleEditClick = (persona) => {
         setSelectedMiembro(persona);
@@ -89,9 +104,14 @@ function AdministrarMiembros() {
         }
     };
 
-    const filteredPersonas = personas.filter((persona) =>
-        `${persona.nombres} ${persona.apellidos} ${persona.numero_cedula}`.toLowerCase().includes(search.toLowerCase())
-    );
+    // Modificar el filtrado para manejar casos donde personas no es un array
+    const filteredPersonas = Array.isArray(personas)
+        ? personas.filter((persona) =>
+            `${persona.nombres || ''} ${persona.apellidos || ''} ${persona.numero_cedula || ''}`
+                .toLowerCase()
+                .includes(search.toLowerCase())
+        )
+        : [];
 
     return (
         <div>
@@ -123,15 +143,15 @@ function AdministrarMiembros() {
                         <div className="d-flex flex-wrap gap-2">
                             <button
                                 className="btn btn-success text-white shadow-sm"
+                                onClick={() => handleOpenModal('pastor')}
                             >
                                 Añadir Pastor
-
                             </button>
                             <button
                                 className="btn btn-success text-white shadow-sm"
+                                onClick={() => handleOpenModal('lider')}
                             >
-                                Añadir Lider
-
+                                Añadir Líder
                             </button>
                         </div>
                     </div>
@@ -149,9 +169,15 @@ function AdministrarMiembros() {
                     )}
                 </div>
             )}
+
+            <ModalSeleccionPersona
+                show={showModal}
+                onHide={() => setShowModal(false)}
+                tipoRol={modalType}
+                onPersonaSeleccionada={handlePersonaSeleccionada}
+            />
         </div>
     );
 }
-
 
 export default AdministrarMiembros;
