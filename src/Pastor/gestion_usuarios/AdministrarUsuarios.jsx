@@ -21,9 +21,9 @@ function AdministrarMiembros() {
         try {
             setLoading(true);
             const token = localStorage.getItem('authToken');
-    
+
             if (!token) throw new Error('No hay sesión activa');
-    
+
             const response = await fetch(`${API_URL}/Miembros/personas_usuario/`, {
                 method: 'GET',
                 headers: {
@@ -31,12 +31,12 @@ function AdministrarMiembros() {
                     'Content-Type': 'application/json'
                 }
             });
-    
+
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Error al obtener los datos');
             }
-    
+
             const data = await response.json();
             setPersonas(Array.isArray(data.personas_con_usuario) ? data.personas_con_usuario : []);
         } catch (err) {
@@ -56,16 +56,61 @@ function AdministrarMiembros() {
         setShowModal(true);
     };
 
-    const handlePersonaSeleccionada = (persona) => {
-        api.success({
-            message: 'Persona seleccionada',
-            description: `${persona.nombres} ${persona.apellidos} ha sido seleccionada para ser ${modalType === 'pastor' ? 'pastor' : 'líder'}`,
-            duration: 3,
-        });
-        setShowModal(false);
-        // Aquí puedes agregar la lógica para guardar el nuevo rol
-    };
+    const handlePersonaSeleccionada = async (personasIds) => {
+        try {
+            const token = localStorage.getItem('authToken');
+            const idsArray = Array.isArray(personasIds) ? personasIds : [];
 
+            if (idsArray.length === 0) {
+                throw new Error('No se seleccionaron personas');
+            }
+
+            const response = await fetch(`${API_URL}/Roles/asignar_pastor/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ personas: idsArray })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Error al asignar pastores');
+            }
+
+            const responseData = await response.json();
+
+            // Mostrar resultados
+            if (responseData.estado === 'completado') {
+                api.success({
+                    message: 'Éxito',
+                    description: `Se asignaron ${responseData.pastores_asignados} pastores`,
+                    duration: 5
+                });
+            }
+
+            // Mostrar errores individuales con nombres
+            if (responseData.personas_rechazadas?.length > 0) {
+                responseData.personas_rechazadas.forEach(p => {
+                    const nombre = p.nombre_completo || `Persona ${p.id_persona}`;
+                    api.warning({
+                        message: nombre,
+                        description: p.error,
+                        duration: 5
+                    });
+                });
+            }
+
+            await fetchPersonas();
+        } catch (err) {
+            api.error({
+                message: 'Error',
+                description: err.message,
+                duration: 5
+            });
+        }
+    };
     useEffect(() => {
         fetchPersonas();
     }, []);
@@ -172,7 +217,10 @@ function AdministrarMiembros() {
 
             <ModalSeleccionPersona
                 show={showModal}
-                onHide={() => setShowModal(false)}
+                onHide={() => {
+                    setShowModal(false);
+                    setModalType(null);
+                }}
                 tipoRol={modalType}
                 onPersonaSeleccionada={handlePersonaSeleccionada}
             />

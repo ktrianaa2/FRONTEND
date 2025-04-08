@@ -19,16 +19,21 @@ const ModalSeleccionPersona = ({
     const [asignarAMinisterio, setAsignarAMinisterio] = useState(false);
     const [api, contextHolder] = notification.useNotification();
 
-    // Obtener personas disponibles
     const fetchPersonasDisponibles = async () => {
         try {
             setLoading(prev => ({ ...prev, personas: true }));
             const token = localStorage.getItem('authToken');
-            const response = await fetch(`${API_URL}/Miembros/personas/`, {
+            const response = await fetch(`${API_URL}/Miembros/personas_sinusuario/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            
+            if (!response.ok) {
+                throw new Error('Error al obtener personas');
+            }
+            
             const data = await response.json();
-            setPersonas(Array.isArray(data.personas) ? data.personas : []);
+            // Cambia data.personas por data.personas_sin_usuario
+            setPersonas(Array.isArray(data.personas_sin_usuario) ? data.personas_sin_usuario : []);
         } catch (err) {
             api.error({ message: 'Error', description: err.message });
         } finally {
@@ -105,23 +110,25 @@ const ModalSeleccionPersona = ({
             return;
         }
 
-        if (asignarAMinisterio && !selectedMinisterio) {
-            api.warning({ message: 'Ministerio requerido', description: 'Debes seleccionar un ministerio' });
-            return;
-        }
-
         setSubmitting(true);
         try {
-            const personasConfirmadas = personasSeleccionadas.map(id =>
-                personas.find(p => p.id_persona == id)
-            );
+            // Modificación clave aquí:
+            const result = tipoRol === 'pastor'
+                ? personasSeleccionadas  // Solo envía el array de IDs para pastores
+                : {  // Estructura completa para líderes
+                    personas: personasSeleccionadas,
+                    ministerio: asignarAMinisterio ? selectedMinisterio : null
+                };
 
-            const result = {
-                personas: personasConfirmadas,
-                ministerio: asignarAMinisterio ? ministerios.find(m => m.id_ministerio == selectedMinisterio) : null
-            };
+            console.log("Datos a enviar:", result); // Para depuración
+            await onPersonaSeleccionada(result);
 
-            onPersonaSeleccionada(result);
+            // Resetear el modal solo después de éxito
+            setPersonasSeleccionadas([]);
+            setSelectedPersona("");
+            setSelectedMinisterio("");
+            setAsignarAMinisterio(false);
+
             onHide();
         } catch (err) {
             api.error({ message: 'Error', description: err.message });
@@ -133,11 +140,11 @@ const ModalSeleccionPersona = ({
     // Resetear estado al cerrar
     const handleClose = () => {
         setPersonasSeleccionadas([]);
+        setSelectedPersona("");
         setSelectedMinisterio("");
         setAsignarAMinisterio(false);
-        onHide();
+        onHide(); // Cierra el modal
     };
-
     // Cargar datos iniciales
     useEffect(() => {
         if (show) {

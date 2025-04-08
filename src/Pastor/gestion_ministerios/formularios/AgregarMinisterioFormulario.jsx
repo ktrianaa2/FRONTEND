@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { notification } from "antd";
 import API_URL from "../../../../Config";
 
-function AgregarMinisterioFormulario({ onClose }) {
+function AgregarMinisterioFormulario({ onClose, api }) {
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [lideres, setLideres] = useState([]);
@@ -10,9 +10,6 @@ function AgregarMinisterioFormulario({ onClose }) {
   const [availableLideres, setAvailableLideres] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-
-  // Configuración inicial de Ant Design Notification
-  const [api, contextHolder] = notification.useNotification();
 
   // Obtener lista de líderes disponibles al cargar el componente
   useEffect(() => {
@@ -133,8 +130,8 @@ function AgregarMinisterioFormulario({ onClose }) {
         description: responseData.mensaje || 'Ministerio creado correctamente',
         duration: 3,
       });
-
-      onClose();
+  
+      onClose(true);
 
     } catch (err) {
       api.error({
@@ -153,7 +150,6 @@ function AgregarMinisterioFormulario({ onClose }) {
 
   return (
     <div className="card shadow-lg border-0">
-      {contextHolder}
       <div className="card-header bg-dark text-white py-3">
         <h5 className="mb-0 fw-bold"><i className="bi bi-building-fill me-2"></i>Agregar Nuevo Ministerio</h5>
       </div>
