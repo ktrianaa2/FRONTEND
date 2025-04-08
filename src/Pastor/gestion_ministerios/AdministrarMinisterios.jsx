@@ -11,6 +11,7 @@ function AdministrarMinisterios() {
     const [search, setSearch] = useState("");
     const [isAgregarOpen, setIsAgregarOpen] = useState(false);
     const [isEditarOpen, setIsEditarOpen] = useState(false);
+    const [showDetails, setShowDetails] = useState(false);
     const [isDisableModalOpen, setIsDisableModalOpen] = useState(false);
     const [selectedMinisterio, setSelectedMinisterio] = useState(null);
     const [ministerios, setMinisterios] = useState([]);
@@ -62,15 +63,19 @@ function AdministrarMinisterios() {
     const handleEdit = (ministerio) => {
         setSelectedMinisterio(ministerio);
         setIsEditarOpen(true);
+        setShowDetails(false);
     };
 
     const handleDisable = (ministerio) => {
         setSelectedMinisterio(ministerio);
         setIsDisableModalOpen(true);
+        setShowDetails(false);
     };
+
     const onVerDetalles = (idMinisterio) => {
         const ministerio = ministerios.find((m) => m.id_ministerio === idMinisterio);
         setSelectedMinisterio(ministerio);
+        setShowDetails(true);
     };
 
     const confirmDisable = async (ministerio) => {
@@ -145,7 +150,7 @@ function AdministrarMinisterios() {
             <h2 className="text-black">Administración de Ministerios</h2>
             <hr />
 
-            {(!isAgregarOpen && !isEditarOpen && !selectedMinisterio) && (
+            {!isAgregarOpen && !isEditarOpen && !showDetails && (
                 <div>
                     <div className="d-flex justify-content-between mb-4">
                         <input
@@ -170,35 +175,53 @@ function AdministrarMinisterios() {
                             filteredMinisterios={filteredMinisterios}
                             handleEdit={handleEdit}
                             handleDisable={handleDisable}
-                            onVerDetalles={onVerDetalles}  // Aquí pasamos la función
+                            onVerDetalles={onVerDetalles}
                         />
                     )}
                 </div>
             )}
 
-            {isAgregarOpen && <AgregarMinisterioFormulario onClose={handleAgregarClose} />}
-            {isEditarOpen && (
-                <EditarMinisterioFormulario
-                    ministerio={selectedMinisterio}
-                    onClose={(updated = false) => {
-                        handleEditarClose(updated);
-                        if (!updated) setSelectedMinisterio(null); // Si no se editó, cerramos los detalles
+            {isAgregarOpen && (
+                <AgregarMinisterioFormulario
+                    onClose={(updated) => {
+                        setIsAgregarOpen(false);
+                        if (updated) fetchMinisterios();
                     }}
                 />
             )}
+
+            {isEditarOpen && (
+                <EditarMinisterioFormulario
+                    ministerio={selectedMinisterio}
+                    onClose={(updated) => {
+                        setIsEditarOpen(false);
+                        if (updated) fetchMinisterios();
+                    }}
+                />
+            )}
+
+            {showDetails && selectedMinisterio && (
+                <DetallesMinisterio
+                    idMinisterio={selectedMinisterio.id_ministerio}
+                    onClose={() => {
+                        setShowDetails(false);
+                        setSelectedMinisterio(null);
+                    }}
+                />
+            )}
+
             {isDisableModalOpen && (
                 <ModalDeshabilitar
                     ministerio={selectedMinisterio}
                     onClose={() => setIsDisableModalOpen(false)}
-                    onConfirm={confirmDisable}
+                    onConfirm={(ministerio) => {
+                        confirmDisable(ministerio);
+                        setIsDisableModalOpen(false);
+                    }}
                 />
-            )}
-            {selectedMinisterio && !isAgregarOpen && !isEditarOpen && (
-                <DetallesMinisterio idMinisterio={selectedMinisterio.id_ministerio} onClose={() => setSelectedMinisterio(null)} />
             )}
         </div>
     );
-
 }
 
 export default AdministrarMinisterios;
