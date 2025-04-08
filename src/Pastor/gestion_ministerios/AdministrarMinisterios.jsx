@@ -190,14 +190,15 @@ function AdministrarMinisterios() {
                 />
             )}
 
+            {isAgregarOpen && <AgregarMinisterioFormulario onClose={handleAgregarClose} api={api} />}
             {isEditarOpen && (
                 <EditarMinisterioFormulario
-                    ministerio={selectedMinisterio}
-                    onClose={(updated) => {
-                        setIsEditarOpen(false);
-                        if (updated) fetchMinisterios();
-                    }}
-                />
+                ministerio={selectedMinisterio}
+                onClose={(updated) => {
+                    setIsEditarOpen(false);
+                    if (updated) fetchMinisterios();
+                }}
+            />
             )}
 
             {showDetails && selectedMinisterio && (
