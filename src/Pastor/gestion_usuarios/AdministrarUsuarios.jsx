@@ -3,8 +3,10 @@ import { notification } from "antd";
 import TablaUsuarios from "./Tabla/TablaUsuarios";
 import FormularioEditarMiembro from "../gestion_miembros/Formularios/FormularioEditarMiembro";
 import DetalleMiembro from "../gestion_miembros/DetalleMiembro";
-import ModalSeleccionPersona from "./Modales/ModalSeleccionPersona";
 import API_URL from "../../../Config";
+
+import ModalAsignarLideres from "./Modales/ModalAsignarLideres";
+import ModalAsignarPastores from "./Modales/ModalAsignarPastores";
 
 function AdministrarMiembros() {
     const [search, setSearch] = useState("");
@@ -16,6 +18,9 @@ function AdministrarMiembros() {
     const [api, contextHolder] = notification.useNotification();
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState(null);
+    const [showPastoresModal, setShowPastoresModal] = useState(false);
+    const [showLideresModal, setShowLideresModal] = useState(false);
+
 
     const fetchPersonas = async () => {
         try {
@@ -51,6 +56,9 @@ function AdministrarMiembros() {
         }
     };
 
+    const handleAsignacionExitosa = () => {
+        fetchPersonas();
+    };
     const handleOpenModal = (type) => {
         setModalType(type);
         setShowModal(true);
@@ -188,17 +196,29 @@ function AdministrarMiembros() {
                         <div className="d-flex flex-wrap gap-2">
                             <button
                                 className="btn btn-success text-white shadow-sm"
-                                onClick={() => handleOpenModal('pastor')}
+                                onClick={() => setShowPastoresModal(true)}
                             >
                                 Añadir Pastor
                             </button>
                             <button
                                 className="btn btn-success text-white shadow-sm"
-                                onClick={() => handleOpenModal('lider')}
+                                onClick={() => setShowLideresModal(true)}
                             >
                                 Añadir Líder
                             </button>
                         </div>
+
+                        <ModalAsignarPastores
+                            show={showPastoresModal}
+                            onHide={() => setShowPastoresModal(false)}
+                            onAsignacionExitosa={handleAsignacionExitosa}
+                        />
+
+                        <ModalAsignarLideres
+                            show={showLideresModal}
+                            onHide={() => setShowLideresModal(false)}
+                            onAsignacionExitosa={handleAsignacionExitosa}
+                        />
                     </div>
 
                     {loading ? (
@@ -214,16 +234,6 @@ function AdministrarMiembros() {
                     )}
                 </div>
             )}
-
-            <ModalSeleccionPersona
-                show={showModal}
-                onHide={() => {
-                    setShowModal(false);
-                    setModalType(null);
-                }}
-                tipoRol={modalType}
-                onPersonaSeleccionada={handlePersonaSeleccionada}
-            />
         </div>
     );
 }
