@@ -155,7 +155,8 @@ function AdministrarMiembros() {
             <div className="text-center my-4">Cargando miembros...</div>
           ) : (
             <TablaMiembros
-              personas={filteredPersonas}
+              personas={personas}
+              filteredPersonas={filteredPersonas}
               loading={loading}
               onRefreshData={fetchPersonas}  
               onVerDetalle={(id) => setMiembroSeleccionadoId(id)} 

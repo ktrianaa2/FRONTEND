@@ -1,7 +1,8 @@
 import React from "react";
 import { notification, Tag, Badge } from "antd";
+import "../../../Styles/Tabla.css"
 
-function TablaMiembros({ personas, onRefreshData, onVerDetalle, onEditar }) {
+function TablaUsuarios({ usuarios, filteredUsuarios, onRefreshData, onVerDetalle, onEditar }) {
   const [api, contextHolder] = notification.useNotification();
 
   // Función para renderizar los ministerios como tags
@@ -11,8 +12,8 @@ function TablaMiembros({ personas, onRefreshData, onVerDetalle, onEditar }) {
     }
 
     return ministerios.map((ministerio) => (
-      <Tag 
-        key={ministerio.id_ministerio} 
+      <Tag
+        key={ministerio.id_ministerio}
         color={ministerio.estado === 'Activo' ? 'green' : 'red'}
         style={{ marginBottom: '4px' }}
       >
@@ -33,68 +34,76 @@ function TablaMiembros({ personas, onRefreshData, onVerDetalle, onEditar }) {
   return (
     <div>
       {contextHolder}
-      <div className="table-responsive">
-        <table className="table table-striped table-hover shadow-sm">
-          <thead className="table-dark">
-            <tr>
-              <th>ID</th>
-              <th>Nombres</th>
-              <th>Apellidos</th>
-              <th>Rol</th>
-              <th>Estado</th>
-              <th>Celular</th>
-              <th>Cédula</th>
-              <th>Ministerios</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {personas.map((persona) => (
-              <tr key={persona.id_persona}>
-                <td>{persona.id_persona}</td>
-                <td>{persona.nombres}</td>
-                <td>{persona.apellidos}</td>
-                <td>
-                  <Tag color={persona.usuario.rol === 'Pastor' ? 'purple' : 'blue'}>
-                    {persona.usuario.rol}
-                  </Tag>
-                </td>
-                <td>
-                  {renderEstado(persona.usuario.activo)}
-                </td>
-                <td>{persona.celular}</td>
-                <td>{persona.numero_cedula}</td>
-                <td>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                    {renderMinisterios(persona.ministerios)}
-                  </div>
-                </td>
-                <td>
-                  <div className="d-flex flex-wrap gap-2">
-                    <button
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => onVerDetalle(persona.id_persona)}
-                    >
-                      Ver Detalles
-                    </button>
-                    <button
-                      className="btn btn-warning btn-sm"
-                      onClick={() => onEditar(persona)}
-                    >
-                      Editar
-                    </button>
-                    <button className="btn btn-danger btn-sm">
-                      {persona.usuario.activo ? 'Desactivar' : 'Activar'}
-                    </button>
-                  </div>
-                </td>
+      {filteredUsuarios.length > 0 ? (
+        <div className="table-responsive">
+          <table className="tabla-principal">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombres</th>
+                <th>Apellidos</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Celular</th>
+                <th>Cédula</th>
+                <th>Ministerios</th>
+                <th>Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filteredUsuarios.map((usuario) => (
+                <tr key={usuario.id_persona}>
+                  <td>{usuario.id_persona}</td>
+                  <td>{usuario.nombres}</td>
+                  <td>{usuario.apellidos}</td>
+                  <td>
+                    <Tag color={usuario.usuario.rol === 'Pastor' ? 'purple' : 'blue'}>
+                      {usuario.usuario.rol}
+                    </Tag>
+                  </td>
+                  <td>
+                    {renderEstado(usuario.usuario.activo)}
+                  </td>
+                  <td>{usuario.celular}</td>
+                  <td>{usuario.numero_cedula}</td>
+                  <td>
+                    <div className="ministerios-container">
+                      {renderMinisterios(usuario.ministerios)}
+                    </div>
+                  </td>
+                  <td>
+                    <div className="btn-acciones">
+                      <button
+                        className="btn-ver"
+                        onClick={() => onVerDetalle(usuario.id_persona)}
+                      >
+                        Ver Detalles
+                      </button>
+                      <button
+                        className="btn-editar"
+                        onClick={() => onEditar(usuario)}
+                      >
+                        Editar
+                      </button>
+                      <button className="btn-deshabilitar">
+                        {usuario.usuario.activo ? 'Desactivar' : 'Activar'}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className={`sin-contenido-mensaje ${usuarios.length === 0 ? '' : 'filtros'}`}>
+          {usuarios.length === 0
+            ? "No hay usuarios registrados todavía."
+            : "No hay usuarios que coincidan con los filtros aplicados."}
+        </div>
+      )}
     </div>
   );
 }
 
-export default TablaMiembros;
+export default TablaUsuarios;

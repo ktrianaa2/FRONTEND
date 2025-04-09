@@ -167,10 +167,11 @@ function AdministrarMinisterios() {
                         <div className="text-center my-4">Cargando ministerios...</div>
                     ) : (
                         <MinisteriosTabla
+                            ministerios={ministerios}
                             filteredMinisterios={filteredMinisterios}
                             handleEdit={handleEdit}
                             handleDisable={handleDisable}
-                            onVerDetalles={onVerDetalles}  // Aquí pasamos la función
+                            onVerDetalles={onVerDetalles}  
                         />
                     )}
                 </div>
@@ -182,7 +183,7 @@ function AdministrarMinisterios() {
                     ministerio={selectedMinisterio}
                     onClose={(updated = false) => {
                         handleEditarClose(updated);
-                        if (!updated) setSelectedMinisterio(null); // Si no se editó, cerramos los detalles
+                        if (!updated) setSelectedMinisterio(null);
                     }}
                 />
             )}

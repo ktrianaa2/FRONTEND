@@ -192,7 +192,8 @@ function AdministrarEventos() {
             <div className="text-center my-4">Cargando eventos...</div>
           ) : (
             <TablaEventos
-              eventos={filteredEventos}
+              eventos={eventos}
+              filteredEventos={filteredEventos}
               loading={loading}
               onRefreshData={fetchEventos}  
               onVerDetalle={(id) => setEventoSeleccionadoId(id)} 
