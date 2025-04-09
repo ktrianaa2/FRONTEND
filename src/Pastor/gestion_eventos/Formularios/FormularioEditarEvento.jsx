@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Select, notification } from "antd";
 import API_URL from "../../../../Config";
+import "../../../Styles/Formulario.css";
 
 function FormularioEditarEvento({ evento, ministerios, onClose, onUpdateSuccess }) {
     const [formData, setFormData] = useState({
@@ -39,7 +40,6 @@ function FormularioEditarEvento({ evento, ministerios, onClose, onUpdateSuccess 
             [name]: value
         });
     };
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -88,104 +88,141 @@ function FormularioEditarEvento({ evento, ministerios, onClose, onUpdateSuccess 
     };
 
     return (
-        <div className="card shadow-lg border-0">
+        <div className="formulario-card">
             {contextHolder}
-            <div className="card-header bg-dark text-white py-3">
-                <h5 className="mb-0 fw-bold">
+            <div className="formulario-header">
+                <h5 className="formulario-titulo">
                     <i className="bi bi-calendar2-event me-2"></i>Editar Evento
                 </h5>
             </div>
-            <div className="card-body bg-light">
+            <div className="formulario-body">
                 <form onSubmit={handleSubmit}>
-                    <div className="mb-3">
-                        <label className="form-label fw-bold">Nombre del Evento</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            name="nombre"
-                            value={formData.nombre}
-                            onChange={handleChange}
-                            required
-                        />
+                    <div className="formulario-campo">
+                        <label className="formulario-label">Nombre del Evento</label>
+                        <div className="formulario-input-group">
+                            <span className="formulario-input-group-text">
+                                <i className="bi bi-card-heading"></i>
+                            </span>
+                            <input
+                                type="text"
+                                className="formulario-input"
+                                name="nombre"
+                                value={formData.nombre}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
                     </div>
 
-                    <div className="mb-3">
-                        <label className="form-label fw-bold">Ministerio</label>
-                        <Select
-                            className="w-100"
-                            id="id_ministerio"
-                            name="id_ministerio"
-                            value={formData.id_ministerio ||  ''}
-                            onChange={(value) => handleSelectChange(value, 'id_ministerio')}
-                            options={ministerios.map(min => ({
-                                value: min.id_ministerio,
-                                label: min.nombre
-                            }))}
-                            placeholder="Seleccione un ministerio"
-                            required
-                        />
+                    <div className="formulario-campo">
+                        <label className="formulario-label">Ministerio</label>
+                        <div className="formulario-input-group">
+                            <span className="formulario-input-group-text">
+                                <i className="bi bi-people-fill"></i>
+                            </span>
+                            <Select
+                                className="formulario-select"
+                                id="id_ministerio"
+                                name="id_ministerio"
+                                value={formData.id_ministerio || ""}
+                                onChange={(value) => handleSelectChange(value, 'id_ministerio')}
+                                options={ministerios.map(min => ({
+                                    value: min.id_ministerio,
+                                    label: min.nombre
+                                }))}
+                                placeholder="Seleccione un ministerio"
+                                required
+                            />
+                        </div>
                     </div>
 
-
-                    <div className="mb-3">
-                        <label className="form-label fw-bold">Descripción</label>
-                        <textarea
-                            className="form-control"
-                            name="descripcion"
-                            value={formData.descripcion}
-                            onChange={handleChange}
-                            rows="3"
-                        />
+                    <div className="formulario-campo">
+                        <label className="formulario-label">Descripción</label>
+                        <div className="formulario-input-group">
+                            <span className="formulario-input-group-text">
+                                <i className="bi bi-file-earmark-text"></i>
+                            </span>
+                            <textarea
+                                id="descripcion"
+                                name="descripcion"
+                                className="formulario-input descripcion"
+                                value={formData.descripcion}
+                                onChange={handleChange}
+                                rows="3"
+                                required
+                            />
+                        </div>
+                    </div>
+                    <div className="row g-3">
+                        <div className="col-md-6">
+                            <div className="formulario-campo">
+                                <label className="formulario-label">Fecha</label>
+                                <div className="formulario-input-group">
+                                    <span className="formulario-input-group-text">
+                                        <i className="bi bi-calendar-date"></i>
+                                    </span>
+                                    <input
+                                        type="date"
+                                        className="formulario-input"
+                                        name="fecha"
+                                        value={formData.fecha}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-md-6">
+                            <div className="formulario-campo">
+                                <label className="formulario-label">Hora</label>
+                                <div className="formulario-input-group">
+                                    <span className="formulario-input-group-text">
+                                        <i className="bi bi-clock"></i>
+                                    </span>
+                                    <input
+                                        type="time"
+                                        className="formulario-input"
+                                        name="hora"
+                                        value={formData.hora}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="mb-3">
-                        <label className="form-label fw-bold">Fecha</label>
-                        <input
-                            type="date"
-                            className="form-control"
-                            name="fecha"
-                            value={formData.fecha}
-                            onChange={handleChange}
-                            required
-                        />
+                    <div className="formulario-campo">
+                        <label className="formulario-label">Lugar</label>
+                        <div className="formulario-input-group">
+                            <span className="formulario-input-group-text">
+                                <i className="bi bi-geo-alt-fill"></i>
+                            </span>
+                            <input
+                                type="text"
+                                className="formulario-input"
+                                name="lugar"
+                                value={formData.lugar}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
                     </div>
 
-                    <div className="mb-3">
-                        <label className="form-label fw-bold">Hora</label>
-                        <input
-                            type="time"
-                            className="form-control"
-                            name="hora"
-                            value={formData.hora}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-
-                    <div className="mb-3">
-                        <label className="form-label fw-bold">Lugar</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            name="lugar"
-                            value={formData.lugar}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-
-                    <div className="d-flex justify-content-end gap-2">
-                        <button type="button" className="btn btn-secondary" onClick={onClose} disabled={loading}>
+                    <div className="formulario-acciones">
+                        <button type="button" className="btn-cancelar" onClick={onClose} disabled={loading}>
                             Cancelar
                         </button>
-                        <button type="submit" className="btn btn-primary" disabled={loading}>
+                        <button type="submit" className="btn-guardar" disabled={loading}>
                             {loading ? (
                                 <>
-                                    <span className="spinner-border spinner-border-sm me-2"></span>
+                                    <span className="spinner me-2"></span>
                                     Guardando...
                                 </>
                             ) : (
-                                "Guardar Cambios"
+                                <>
+                                    Guardar Cambios
+                                </>
                             )}
                         </button>
                     </div>

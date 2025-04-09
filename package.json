@@ -12,6 +12,7 @@
   "dependencies": {
     "antd": "^5.11.3-alpha.0",
     "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
     "lucide-react": "^0.487.0",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",

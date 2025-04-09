@@ -5,6 +5,7 @@ import PastorDashboard from './Pastor/PastorDashboard';
 import LiderDashboard from './Lider/LiderDashboard';
 import ProtectedRoute from './Principal/ProtectedRoute';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const HistoryBlocker = () => {
   const navigate = useNavigate();
