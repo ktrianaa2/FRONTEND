@@ -52,52 +52,55 @@ const ModalAsignarLideres = ({ show, onHide, onAsignacionExitosa }) => {
             api.warning({ message: 'Ministerio requerido', description: 'Debes seleccionar un ministerio' });
             return;
         }
-    
+
         if (!lider1 && !lider2) {
             api.warning({ message: 'Líderes requeridos', description: 'Debes seleccionar al menos un líder' });
             return;
         }
-    
+
         // Validar que no sea la misma persona para ambos roles
         if (lider1 && lider2 && lider1 === lider2) {
-            api.error({ 
-                message: 'Error de selección', 
+            api.error({
+                message: 'Error de selección',
                 description: 'Una persona no puede ser líder 1 y líder 2 simultáneamente',
                 duration: 5
             });
             return;
         }
-    
+
         setSubmitting(true);
         try {
             const token = localStorage.getItem('authToken');
             const formData = new FormData();
             formData.append('ministerio_id', selectedMinisterio);
-            
+
             // Siempre enviamos los dos líderes para asegurar que el backend tenga toda la información
             // En lugar de solo enviar los que han cambiado
             formData.append('lider1_id', lider1);
             formData.append('lider2_id', lider2);
-    
+
             const response = await fetch(`${API_URL}/Roles/asignar_lider/`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
             });
-    
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Error al asignar líderes');
-            }
-    
+
             const responseData = await response.json();
-    
+
+            if (!response.ok) {
+                // Manejar específicamente el error de perfil incompleto
+                if (responseData.error === 'Perfil incompleto' && responseData.detalle) {
+                    throw new Error(responseData.detalle);
+                }
+                throw new Error(responseData.error || 'Error al asignar líderes');
+            }
+
             api.success({
                 message: 'Éxito',
                 description: `Líderes asignados correctamente al ministerio: ${ministerioSeleccionado.nombre}`,
                 duration: 5
             });
-    
+
             if (responseData.usuarios_desactivados) {
                 api.info({
                     message: 'Usuarios afectados',
@@ -105,12 +108,12 @@ const ModalAsignarLideres = ({ show, onHide, onAsignacionExitosa }) => {
                     duration: 8
                 });
             }
-    
+
             onAsignacionExitosa();
             handleClose();
         } catch (err) {
-            api.error({ 
-                message: 'Error', 
+            api.error({
+                message: 'Error',
                 description: err.message,
                 duration: 5
             });
@@ -215,7 +218,7 @@ const ModalAsignarLideres = ({ show, onHide, onAsignacionExitosa }) => {
                                                     onChange={(e) => {
                                                         const newLider1 = e.target.value || "";
                                                         setLider1(newLider1);
-                                                        
+
                                                         // Si el nuevo líder 1 es igual al líder 2 actual, limpiar el líder 2
                                                         if (newLider1 === lider2) {
                                                             setLider2("");
@@ -249,7 +252,7 @@ const ModalAsignarLideres = ({ show, onHide, onAsignacionExitosa }) => {
                                                     onChange={(e) => {
                                                         const newLider2 = e.target.value || "";
                                                         setLider2(newLider2);
-                                                        
+
                                                         // Si el nuevo líder 2 es igual al líder 1 actual, limpiar el líder 1
                                                         if (newLider2 === lider1) {
                                                             setLider1("");
