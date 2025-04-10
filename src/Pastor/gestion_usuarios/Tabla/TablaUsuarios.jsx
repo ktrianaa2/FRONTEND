@@ -4,6 +4,15 @@ import "../../../Styles/Tabla.css"
 
 function TablaUsuarios({ usuarios, filteredUsuarios, onRefreshData, onVerDetalle, onEditar }) {
   const [api, contextHolder] = notification.useNotification();
+  console.log(filteredUsuarios.map(u => ({ id: u.id_persona, cedula: u.numero_cedula })));
+
+
+  // En tu componente, antes del return:
+  const hasDuplicateIds = new Set(filteredUsuarios.map(u => u.id_persona)).size !== filteredUsuarios.length;
+  if (hasDuplicateIds) {
+    console.error("¡Hay IDs duplicados en los usuarios!", filteredUsuarios);
+  }
+
 
   // Función para renderizar los ministerios como tags
   const renderMinisterios = (ministerios) => {
