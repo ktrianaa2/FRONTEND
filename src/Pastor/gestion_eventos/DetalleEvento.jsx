@@ -40,10 +40,8 @@ function DetalleEvento({ idEvento, onClose }) {
     if (!evento) return null;
 
     return (
-        <div className="detalle-evento-container p-4 bg-white rounded-lg shadow-lg">
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <h2 className="titulo">Detalles del Evento</h2>
-            </div>
+        <div className="detalle-container">
+            <h2 className="titulo">Detalles del Evento</h2>
             <div className="detalle-item">
                 <label className="detalle-label">Ministerio:</label>
                 <span className="detalle-info">{evento.ministerio}</span>
@@ -76,7 +74,7 @@ function DetalleEvento({ idEvento, onClose }) {
                 <label className="detalle-label">Creado por:</label>
                 <span className="detalle-info">{evento.usuario}</span>
             </div>
-            <button className="btn btn-secondary mt-3" onClick={onClose}>
+            <button className="btn-volver" onClick={onClose}>
                 Volver
             </button>
         </div>

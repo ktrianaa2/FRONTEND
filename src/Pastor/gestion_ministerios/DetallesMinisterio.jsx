@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import API_URL from "../../../Config";
 import { notification } from "antd";
+import '../../Styles/Detalles.css';
 
 function DetalleMinisterio({ idMinisterio, onClose }) {
     const [ministerio, setMinisterio] = useState(null);
@@ -71,9 +72,9 @@ function DetalleMinisterio({ idMinisterio, onClose }) {
     if (!ministerio) return <div className="text-danger">No se encontró el ministerio.</div>;
 
     return (
-        <div className="card shadow p-4">
+        <div className="detalle-container">
             {contextHolder}
-            <h4>Detalle del Ministerio</h4>
+            <h4 className="titulo">Detalle del Ministerio</h4>
             <hr />
             <p><strong>Nombre:</strong> {ministerio.nombre}</p>
             <p><strong>Líder(es):</strong> {formatLideres(ministerio.lider1, ministerio.lider2)}</p>
@@ -81,12 +82,12 @@ function DetalleMinisterio({ idMinisterio, onClose }) {
             <p><strong>Miembros:</strong>______</p>
             <p><strong>Eventos Recientes:</strong> _________</p>
             <p><strong>Estado:</strong> {ministerio.estado}</p>
-
-            <button className="btn btn-secondary mt-3" onClick={onClose}>
+    
+            <button className="btn-volver" onClick={onClose}>
                 Volver
             </button>
         </div>
-    );
+    );    
 }
 
 export default DetalleMinisterio;

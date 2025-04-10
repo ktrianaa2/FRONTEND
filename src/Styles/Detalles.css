@@ -1,9 +1,10 @@
-.detalle-evento-container {
+.detalle-container {
     max-width: 600px;
     margin: auto;
     background-color: #fff;
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
 }
 
 .titulo {
@@ -12,18 +13,22 @@
     color: #333;
 }
 
-.btn-cerrar {
+.btn-volver {
     padding: 6px 12px;
     font-size: 14px;
     border: none;
-    background-color: transparent;
-    color: #888;
+    background-color: #8a8888;
+    color: #fff;
     cursor: pointer;
+    width: 100%;
+    border-radius: 6px;
 }
 
-.btn-cerrar:hover {
-    color: #333;
+.btn-volver:hover {
+    background-color: #4e4e4e;
+    color: #fff;
 }
+
 
 .detalle-item {
     display: flex;

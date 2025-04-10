@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import API_URL from "../../../Config";
 import { notification } from "antd";
+import '../../Styles/Detalles.css';
 
 function DetalleMiembro({ idMiembro, onClose }) {
     const [miembro, setMiembro] = useState(null);
@@ -56,26 +57,68 @@ function DetalleMiembro({ idMiembro, onClose }) {
     if (!miembro) return <div className="text-danger">No se encontró al miembro.</div>;
 
     return (
-        <div className="card shadow p-4">
+        <div className="detalle-container shadow p-4">
             {contextHolder}
-            <h4>Detalle del {miembro.rol}</h4>
+            <h4 className="titulo">Detalle del {miembro.rol}</h4>
             <hr />
-            <p><strong>Nombre:</strong> {miembro.nombres} {miembro.apellidos}</p>
-            <p><strong>Ministerios:</strong> ________ </p>
-            <p><strong>Ultima Pastoral:</strong> ________ </p>
-            <p><strong>Cédula:</strong> {miembro.numero_cedula}</p>
-            <p><strong>Celular:</strong> {miembro.celular}</p>
-            <p><strong>Fecha de Nacimiento:</strong> {miembro.fecha_nacimiento}</p>
-            <p><strong>Dirección:</strong> {miembro.direccion}</p>
-            <p><strong>Email:</strong> {miembro.correo_electronico}</p>
-            <p><strong>Género:</strong> {miembro.genero}</p>
-            <p><strong>Nivel de Estudio:</strong> {miembro.nivel_estudio}</p>
-            <p><strong>Nacionalidad:</strong> {miembro.nacionalidad}</p>
-            <p><strong>Profesión:</strong> {miembro.profesion}</p>
-            <p><strong>Estado Civil:</strong> {miembro.estado_civil}</p>
-            <p><strong>Lugar de Trabajo:</strong> {miembro.lugar_trabajo}</p>
-
-            <button className="btn btn-secondary mt-3" onClick={onClose}>
+            <div className="detalle-item">
+                <span className="detalle-label"><strong>Nombre:</strong></span>
+                <span className="detalle-info">{miembro.nombres} {miembro.apellidos}</span>
+            </div>
+            <div className="detalle-item">
+                <span className="detalle-label"><strong>Ministerios:</strong></span>
+                <span className="detalle-info">________</span>
+            </div>
+            <div className="detalle-item">
+                <span className="detalle-label"><strong>Ultima Pastoral:</strong></span>
+                <span className="detalle-info">________</span>
+            </div>
+            <div className="detalle-item">
+                <span className="detalle-label"><strong>Cédula:</strong></span>
+                <span className="detalle-info">{miembro.numero_cedula}</span>
+            </div>
+            <div className="detalle-item">
+                <span className="detalle-label"><strong>Celular:</strong></span>
+                <span className="detalle-info">{miembro.celular}</span>
+            </div>
+            <div className="detalle-item">
+                <span className="detalle-label"><strong>Fecha de Nacimiento:</strong></span>
+                <span className="detalle-info">{miembro.fecha_nacimiento}</span>
+            </div>
+            <div className="detalle-item">
+                <span className="detalle-label"><strong>Dirección:</strong></span>
+                <span className="detalle-info">{miembro.direccion}</span>
+            </div>
+            <div className="detalle-item">
+                <span className="detalle-label"><strong>Email:</strong></span>
+                <span className="detalle-info">{miembro.correo_electronico}</span>
+            </div>
+            <div className="detalle-item">
+                <span className="detalle-label"><strong>Género:</strong></span>
+                <span className="detalle-info">{miembro.genero}</span>
+            </div>
+            <div className="detalle-item">
+                <span className="detalle-label"><strong>Nivel de Estudio:</strong></span>
+                <span className="detalle-info">{miembro.nivel_estudio}</span>
+            </div>
+            <div className="detalle-item">
+                <span className="detalle-label"><strong>Nacionalidad:</strong></span>
+                <span className="detalle-info">{miembro.nacionalidad}</span>
+            </div>
+            <div className="detalle-item">
+                <span className="detalle-label"><strong>Profesión:</strong></span>
+                <span className="detalle-info">{miembro.profesion}</span>
+            </div>
+            <div className="detalle-item">
+                <span className="detalle-label"><strong>Estado Civil:</strong></span>
+                <span className="detalle-info">{miembro.estado_civil}</span>
+            </div>
+            <div className="detalle-item">
+                <span className="detalle-label"><strong>Lugar de Trabajo:</strong></span>
+                <span className="detalle-info">{miembro.lugar_trabajo}</span>
+            </div>
+    
+            <button className="btn-volver" onClick={onClose}>
                 Volver
             </button>
         </div>
