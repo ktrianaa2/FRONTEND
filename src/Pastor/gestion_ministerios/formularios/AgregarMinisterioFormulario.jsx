@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { notification } from "antd";
 import API_URL from "../../../../Config";
+import "../../../Styles/Formulario.css";
 
 function AgregarMinisterioFormulario({ onClose, api }) {
   const [nombre, setNombre] = useState("");
@@ -130,7 +131,7 @@ function AgregarMinisterioFormulario({ onClose, api }) {
         description: responseData.mensaje || 'Ministerio creado correctamente',
         duration: 3,
       });
-  
+
       onClose(true);
 
     } catch (err) {
@@ -149,21 +150,25 @@ function AgregarMinisterioFormulario({ onClose, api }) {
   }
 
   return (
-    <div className="card shadow-lg border-0">
-      <div className="card-header bg-dark text-white py-3">
-        <h5 className="mb-0 fw-bold"><i className="bi bi-building-fill me-2"></i>Agregar Nuevo Ministerio</h5>
+    <div className="formulario-card">
+      <div className="formulario-header">
+        <h5 className="formulario-titulo">
+          <i className="bi bi-building-fill me-2"></i>Agregar Nuevo Ministerio
+        </h5>
       </div>
-      <div className="card-body bg-light">
-        <form onSubmit={handleSubmit} className="p-2">
-          <div className="mb-3 g-3">
-            <label htmlFor="nombre" className="form-label fw-bold text-dark">
+      <div className="formulario-body">
+        <form onSubmit={handleSubmit}>
+          <div className="formulario-campo">
+            <label htmlFor="nombre" className="formulario-label">
               Nombre del Ministerio <span className="text-danger">*</span>
             </label>
-            <div className="input-group">
-              <span className="input-group-text bg-dark text-white"><i className="bi bi-building"></i></span>
+            <div className="formulario-input-group">
+              <span className="formulario-input-group-text">
+                <i className="bi bi-building"></i>
+              </span>
               <input
                 type="text"
-                className="form-control"
+                className="formulario-input"
                 id="nombre"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
@@ -173,14 +178,16 @@ function AgregarMinisterioFormulario({ onClose, api }) {
             </div>
           </div>
 
-          <div className="mb-3">
-            <label htmlFor="descripcion" className="form-label fw-bold text-dark">
+          <div className="formulario-campo">
+            <label htmlFor="descripcion" className="formulario-label">
               Descripción <span className="text-danger">*</span>
             </label>
-            <div className="input-group">
-              <span className="input-group-text bg-dark text-white"><i className="bi bi-file-earmark-text"></i></span>
+            <div className="formulario-input-group">
+              <span className="formulario-input-group-text">
+                <i className="bi bi-file-earmark-text"></i>
+              </span>
               <textarea
-                className="form-control"
+                className="formulario-input"
                 id="descripcion"
                 value={descripcion}
                 onChange={(e) => setDescripcion(e.target.value)}
@@ -190,13 +197,13 @@ function AgregarMinisterioFormulario({ onClose, api }) {
             </div>
           </div>
 
-          <div className="mb-3 g-3">
-            <label className="form-label fw-bold text-dark">
+          <div className="formulario-campo">
+            <label className="formulario-label">
               Líder(es) (Máximo 2)
             </label>
-            <div className="d-flex justify-content-between">
+            <div className="contenedor-select-boton">
               <select
-                className="form-select w-75"
+                className="formulario-input formulario-select"
                 value={selectedLider}
                 onChange={(e) => setSelectedLider(e.target.value)}
                 disabled={lideres.length >= 2 || submitting}
@@ -210,7 +217,7 @@ function AgregarMinisterioFormulario({ onClose, api }) {
               </select>
               <button
                 type="button"
-                className="btn btn-success ms-2"
+                className="btn-guardar"
                 onClick={handleAddLider}
                 disabled={!selectedLider || lideres.length >= 2 || submitting}
               >
@@ -218,20 +225,20 @@ function AgregarMinisterioFormulario({ onClose, api }) {
               </button>
             </div>
 
-            <div className="mt-2">
+            <div className="lista-lideres">
               {lideres.length > 0 && (
-                <ul className="list-group">
+                <ul className="lista-lideres-ul">
                   {lideres.map((liderId) => {
                     const lider = availableLideres.find(p => p.id_persona == liderId);
                     return (
                       <li
                         key={liderId}
-                        className="list-group-item d-flex justify-content-between align-items-center"
+                        className="item-lider"
                       >
                         {lider ? `${lider.nombres} ${lider.apellidos}` : `ID: ${liderId}`}
                         <button
                           type="button"
-                          className="btn btn-danger btn-sm"
+                          className="btn-cancelar"
                           onClick={() => handleRemoveLider(liderId)}
                           disabled={submitting}
                         >
@@ -243,12 +250,15 @@ function AgregarMinisterioFormulario({ onClose, api }) {
                 </ul>
               )}
             </div>
+            {lideres.length >= 2 && (
+              <small className="text-muted">Máximo 2 líderes permitidos</small>
+            )}
           </div>
 
-          <div className="d-flex justify-content-end gap-2">
+          <div className="formulario-acciones">
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn-cancelar"
               onClick={onClose}
               disabled={submitting}
             >
@@ -257,10 +267,19 @@ function AgregarMinisterioFormulario({ onClose, api }) {
 
             <button
               type="submit"
-              className="btn btn-success text-white"
+              className="btn-guardar"
               disabled={submitting}
             >
-              {submitting ? 'Guardando...' : 'Agregar'}
+              {submitting ? (
+                <>
+                  <span className="spinner"></span>
+                  Guardando...
+                </>
+              ) : (
+                <>
+                  Agregar
+                </>
+              )}
             </button>
           </div>
         </form>

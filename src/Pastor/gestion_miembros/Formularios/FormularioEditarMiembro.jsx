@@ -429,7 +429,6 @@ function FormularioEditarMiembro({ miembro, onClose, onUpdateSuccess }) {
                                 </>
                             ) : (
                                 <>
-                                    <i className="bi bi-save-fill me-2"></i>
                                     Guardar
                                 </>
                             )}

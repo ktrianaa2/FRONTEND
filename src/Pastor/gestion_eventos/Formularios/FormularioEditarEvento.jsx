@@ -97,42 +97,48 @@ function FormularioEditarEvento({ evento, ministerios, onClose, onUpdateSuccess 
             </div>
             <div className="formulario-body">
                 <form onSubmit={handleSubmit}>
-                    <div className="formulario-campo">
-                        <label className="formulario-label">Nombre del Evento</label>
-                        <div className="formulario-input-group">
-                            <span className="formulario-input-group-text">
-                                <i className="bi bi-card-heading"></i>
-                            </span>
-                            <input
-                                type="text"
-                                className="formulario-input"
-                                name="nombre"
-                                value={formData.nombre}
-                                onChange={handleChange}
-                                required
-                            />
+                    <div className="row mb-3 g-3">
+                        <div className="col-md-6">
+                            <div className="formulario-campo">
+                                <label className="formulario-label">Nombre del Evento</label>
+                                <div className="formulario-input-group">
+                                    <span className="formulario-input-group-text">
+                                        <i className="bi bi-card-heading"></i>
+                                    </span>
+                                    <input
+                                        type="text"
+                                        className="formulario-input"
+                                        name="nombre"
+                                        value={formData.nombre}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="formulario-campo">
-                        <label className="formulario-label">Ministerio</label>
-                        <div className="formulario-input-group">
-                            <span className="formulario-input-group-text">
-                                <i className="bi bi-people-fill"></i>
-                            </span>
-                            <Select
-                                className="formulario-select"
-                                id="id_ministerio"
-                                name="id_ministerio"
-                                value={formData.id_ministerio || ""}
-                                onChange={(value) => handleSelectChange(value, 'id_ministerio')}
-                                options={ministerios.map(min => ({
-                                    value: min.id_ministerio,
-                                    label: min.nombre
-                                }))}
-                                placeholder="Seleccione un ministerio"
-                                required
-                            />
+                        <div className="col-md-6">
+                            <div className="formulario-campo">
+                                <label className="formulario-label">Ministerio</label>
+                                <div className="formulario-input-group">
+                                    <span className="formulario-input-group-text">
+                                        <i className="bi bi-people-fill"></i>
+                                    </span>
+                                    <Select
+                                        className="formulario-select"
+                                        id="id_ministerio"
+                                        name="id_ministerio"
+                                        value={formData.id_ministerio || ""}
+                                        onChange={(value) => handleSelectChange(value, 'id_ministerio')}
+                                        options={ministerios.map(min => ({
+                                            value: min.id_ministerio,
+                                            label: min.nombre
+                                        }))}
+                                        placeholder="Seleccione un ministerio"
+                                        required
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -153,7 +159,7 @@ function FormularioEditarEvento({ evento, ministerios, onClose, onUpdateSuccess 
                             />
                         </div>
                     </div>
-                    <div className="row g-3">
+                    <div className="row mb-3 g-3">
                         <div className="col-md-6">
                             <div className="formulario-campo">
                                 <label className="formulario-label">Fecha</label>
