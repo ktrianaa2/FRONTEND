@@ -171,7 +171,7 @@ function AdministrarMinisterios() {
                             filteredMinisterios={filteredMinisterios}
                             handleEdit={handleEdit}
                             handleDisable={handleDisable}
-                            onVerDetalles={onVerDetalles}  
+                            onVerDetalles={onVerDetalles}
                         />
                     )}
                 </div>
@@ -189,6 +189,7 @@ function AdministrarMinisterios() {
             )}
             {isDisableModalOpen && (
                 <ModalDeshabilitar
+                    show={isDisableModalOpen}
                     ministerio={selectedMinisterio}
                     onClose={() => setIsDisableModalOpen(false)}
                     onConfirm={confirmDisable}

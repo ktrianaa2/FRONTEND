@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Spinner, Alert, Form } from "react-bootstrap";
+import { Modal, Alert } from "react-bootstrap";
 import { notification } from "antd";
 import API_URL from "../../../../Config";
+import "../../../Styles/Modal.css"
 
 const ModalAsignarLideres = ({ show, onHide, onAsignacionExitosa }) => {
     const [personas, setPersonas] = useState([]);
@@ -153,22 +154,23 @@ const ModalAsignarLideres = ({ show, onHide, onAsignacionExitosa }) => {
     return (
         <>
             {contextHolder}
-            <Modal show={show} onHide={handleClose} size="lg" centered>
-                <Modal.Header closeButton className="bg-dark text-white">
-                    <Modal.Title>Asignar Líderes a Ministerio</Modal.Title>
+            <Modal show={show} onHide={handleClose} size="lg" centered className="modal-container">
+                <Modal.Header closeButton className="modal-header">
+                    <Modal.Title className="modal-title">Asignar Líderes a Ministerio</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body className="modal-body">
                     {loading.personas || loading.ministerios ? (
-                        <div className="text-center my-4">
-                            <Spinner animation="border" />
+                        <div className="modal-loading">
+                            <div className="modal-spinner"></div>
                             <p>Cargando datos...</p>
                         </div>
                     ) : (
-                        <div className="p-3">
+                        <div className="modal-body-content">
                             <div className="mb-4">
-                                <Form.Group>
-                                    <Form.Label className="fw-bold">Seleccionar Ministerio</Form.Label>
-                                    <Form.Select
+                                <div className="modal-form-group">
+                                    <label className="modal-form-label">Seleccionar Ministerio</label>
+                                    <select
+                                        className="modal-form-select"
                                         value={selectedMinisterio || ""}
                                         onChange={(e) => setSelectedMinisterio(e.target.value ? parseInt(e.target.value) : null)}
                                         disabled={submitting}
@@ -182,12 +184,12 @@ const ModalAsignarLideres = ({ show, onHide, onAsignacionExitosa }) => {
                                                 {ministerio.nombre} - {ministerio.descripcion}
                                             </option>
                                         ))}
-                                    </Form.Select>
-                                </Form.Group>
+                                    </select>
+                                </div>
 
                                 {ministerioSeleccionado && (
                                     <div className="mt-3">
-                                        <Alert variant="info">
+                                        <Alert variant="info" className="modal-alerta modal-alerta-info">
                                             <div className="d-flex justify-content-between">
                                                 <div>
                                                     <strong>Líder 1 actual:</strong>{' '}
@@ -211,15 +213,15 @@ const ModalAsignarLideres = ({ show, onHide, onAsignacionExitosa }) => {
                                 <>
                                     <div className="row mb-3">
                                         <div className="col-md-6">
-                                            <Form.Group>
-                                                <Form.Label className="fw-bold">Líder 1</Form.Label>
-                                                <Form.Select
+                                            <div className="modal-form-group">
+                                                <label className="modal-form-label">Líder 1</label>
+                                                <select
+                                                    className="modal-form-select"
                                                     value={lider1}
                                                     onChange={(e) => {
                                                         const newLider1 = e.target.value || "";
                                                         setLider1(newLider1);
 
-                                                        // Si el nuevo líder 1 es igual al líder 2 actual, limpiar el líder 2
                                                         if (newLider1 === lider2) {
                                                             setLider2("");
                                                         }
@@ -229,7 +231,6 @@ const ModalAsignarLideres = ({ show, onHide, onAsignacionExitosa }) => {
                                                     <option value="">Seleccione líder 1</option>
                                                     {personas.map(persona => {
                                                         const esLider2Seleccionado = persona.id_persona == lider2;
-                                                        // Removido la validación de líder actual para permitir reasignaciones
                                                         return (
                                                             <option
                                                                 key={`l1-${persona.id_persona}`}
@@ -241,19 +242,19 @@ const ModalAsignarLideres = ({ show, onHide, onAsignacionExitosa }) => {
                                                             </option>
                                                         );
                                                     })}
-                                                </Form.Select>
-                                            </Form.Group>
+                                                </select>
+                                            </div>
                                         </div>
                                         <div className="col-md-6">
-                                            <Form.Group>
-                                                <Form.Label className="fw-bold">Líder 2</Form.Label>
-                                                <Form.Select
+                                            <div className="modal-form-group">
+                                                <label className="modal-form-label">Líder 2</label>
+                                                <select
+                                                    className="modal-form-select"
                                                     value={lider2}
                                                     onChange={(e) => {
                                                         const newLider2 = e.target.value || "";
                                                         setLider2(newLider2);
 
-                                                        // Si el nuevo líder 2 es igual al líder 1 actual, limpiar el líder 1
                                                         if (newLider2 === lider1) {
                                                             setLider1("");
                                                         }
@@ -263,7 +264,6 @@ const ModalAsignarLideres = ({ show, onHide, onAsignacionExitosa }) => {
                                                     <option value="">Seleccione líder 2</option>
                                                     {personas.map(persona => {
                                                         const esLider1Seleccionado = persona.id_persona == lider1;
-                                                        // Removido la validación de líder actual para permitir reasignaciones
                                                         return (
                                                             <option
                                                                 key={`l2-${persona.id_persona}`}
@@ -275,11 +275,11 @@ const ModalAsignarLideres = ({ show, onHide, onAsignacionExitosa }) => {
                                                             </option>
                                                         );
                                                     })}
-                                                </Form.Select>
-                                            </Form.Group>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
-                                    <Alert variant="warning" className="mt-3">
+                                    <Alert variant="warning" className="modal-alerta modal-alerta-advertencia">
                                         <i className="bi bi-info-circle-fill me-2"></i>
                                         Puedes asignar uno o ambos líderes. Si dejas un campo vacío, se eliminará el líder actual de ese puesto.
                                         No se permite asignar la misma persona como Líder 1 y Líder 2 simultáneamente.
@@ -289,22 +289,28 @@ const ModalAsignarLideres = ({ show, onHide, onAsignacionExitosa }) => {
                         </div>
                     )}
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose} disabled={submitting}>
-                        Cancelar
-                    </Button>
-                    <Button
-                        variant="primary"
-                        onClick={handleConfirmSelection}
-                        disabled={!selectedMinisterio || submitting}
-                    >
-                        {submitting ? (
-                            <>
-                                <Spinner as="span" animation="border" size="sm" />
-                                <span className="ms-2">Procesando...</span>
-                            </>
-                        ) : 'Confirmar'}
-                    </Button>
+                <Modal.Footer className="modal-footer">
+                    <div className="modal-footer-buttons">
+                        <button
+                            className="modal-btn btn-cancelar"
+                            onClick={handleClose}
+                            disabled={submitting}
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            className="modal-btn btn-guardar"
+                            onClick={handleConfirmSelection}
+                            disabled={!selectedMinisterio || submitting}
+                        >
+                            {submitting ? (
+                                <>
+                                    <span className="modal-spinner"></span>
+                                    <span className="ms-2">Procesando...</span>
+                                </>
+                            ) : 'Confirmar'}
+                        </button>
+                    </div>
                 </Modal.Footer>
             </Modal>
         </>

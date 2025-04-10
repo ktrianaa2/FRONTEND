@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, ListGroup, Spinner } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import { notification } from "antd";
 import API_URL from "../../../../Config";
+import "../../../Styles/Modal.css"
 
 const ModalAsignarPastores = ({ show, onHide, onAsignacionExitosa }) => {
     const [personas, setPersonas] = useState([]);
@@ -18,7 +19,7 @@ const ModalAsignarPastores = ({ show, onHide, onAsignacionExitosa }) => {
             const response = await fetch(`${API_URL}/Miembros/personas_sinusuario/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            
+
             const data = await response.json();
             setPersonas(Array.isArray(data.personas_sin_usuario) ? data.personas_sin_usuario : []);
         } catch (err) {
@@ -110,23 +111,23 @@ const ModalAsignarPastores = ({ show, onHide, onAsignacionExitosa }) => {
     return (
         <>
             {contextHolder}
-            <Modal show={show} onHide={handleClose} size="lg" centered>
-                <Modal.Header closeButton className="bg-dark text-white">
-                    <Modal.Title>Asignar Pastores</Modal.Title>
+            <Modal show={show} onHide={handleClose} size="lg" centered className="modal-container">
+                <Modal.Header closeButton className="modal-header">
+                    <Modal.Title className="modal-title">Asignar Pastores</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body className="modal-body">
                     {loading ? (
-                        <div className="text-center my-4">
-                            <Spinner animation="border" />
+                        <div className="modal-loading">
+                            <div className="modal-spinner"></div>
                             <p>Cargando personas disponibles...</p>
                         </div>
                     ) : (
-                        <div className="p-3">
+                        <div className="modal-body-content">
                             <div className="mb-3">
-                                <label className="form-label fw-bold">Seleccionar pastor(es)</label>
-                                <div className="d-flex align-items-center gap-2 mb-2">
+                                <label className="modal-form-label">Seleccionar pastor(es)</label>
+                                <div className="contenedor-select-pastor">
                                     <select
-                                        className="form-select flex-grow-1"
+                                        className="modal-form-select"
                                         value={selectedPersona}
                                         onChange={(e) => setSelectedPersona(e.target.value)}
                                         disabled={submitting}
@@ -143,10 +144,9 @@ const ModalAsignarPastores = ({ show, onHide, onAsignacionExitosa }) => {
                                         ))}
                                     </select>
                                     <button
-                                        className="btn btn-success"
+                                        className="modal-btn btn-agregar"
                                         onClick={handleAddPersona}
                                         disabled={!selectedPersona || submitting}
-                                        style={{ width: '40px', height: '38px', fontSize: '1.2rem' }}
                                     >
                                         +
                                     </button>
@@ -155,54 +155,58 @@ const ModalAsignarPastores = ({ show, onHide, onAsignacionExitosa }) => {
 
                             {personasSeleccionadas.length > 0 && (
                                 <div className="mt-3">
-                                    <h6>Pastores seleccionados:</h6>
-                                    <ListGroup>
-                                        {personasSeleccionadas.map(personaId => {
-                                            const persona = personas.find(p => p.id_persona == personaId);
-                                            return (
-                                                <ListGroup.Item
-                                                    key={personaId}
-                                                    className="d-flex justify-content-between align-items-center"
-                                                >
-                                                    <div>
-                                                        <strong>{persona?.nombres} {persona?.apellidos}</strong>
-                                                        <div className="text-muted small">
-                                                            Cédula: {persona?.numero_cedula}
+                                    <h6 className="titulo-pastores-seleccionados">Pastores seleccionados:</h6>
+                                    <div className="lista-pastores">
+                                        <ul className="lista-pastores-ul">
+                                            {personasSeleccionadas.map(personaId => {
+                                                const persona = personas.find(p => p.id_persona == personaId);
+                                                return (
+                                                    <li key={personaId} className="item-pastor">
+                                                        <div className="info-pastor">
+                                                            <strong className="nombre-pastor">{persona?.nombres} {persona?.apellidos}</strong>
+                                                            <div className="cedula-pastor">
+                                                                Cédula: {persona?.numero_cedula}
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <button
-                                                        className="btn btn-sm btn-outline-danger"
-                                                        onClick={() => handleRemovePersona(personaId)}
-                                                        disabled={submitting}
-                                                        style={{ width: '30px', height: '30px', fontSize: '1.2rem' }}
-                                                    >
-                                                        ×
-                                                    </button>
-                                                </ListGroup.Item>
-                                            );
-                                        })}
-                                    </ListGroup>
+                                                        <button
+                                                            className="btn-eliminar-pastor"
+                                                            onClick={() => handleRemovePersona(personaId)}
+                                                            disabled={submitting}
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
+                                    </div>
                                 </div>
                             )}
                         </div>
                     )}
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose} disabled={submitting}>
-                        Cancelar
-                    </Button>
-                    <Button
-                        variant="primary"
-                        onClick={handleConfirmSelection}
-                        disabled={personasSeleccionadas.length === 0 || submitting}
-                    >
-                        {submitting ? (
-                            <>
-                                <Spinner as="span" animation="border" size="sm" />
-                                <span className="ms-2">Procesando...</span>
-                            </>
-                        ) : 'Confirmar'}
-                    </Button>
+                <Modal.Footer className="modal-footer">
+                    <div className="modal-footer-buttons">
+                        <button
+                            className="modal-btn btn-cancelar"
+                            onClick={handleClose}
+                            disabled={submitting}
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            className="modal-btn btn-guardar"
+                            onClick={handleConfirmSelection}
+                            disabled={personasSeleccionadas.length === 0 || submitting}
+                        >
+                            {submitting ? (
+                                <>
+                                    <span className="modal-spinner"></span>
+                                    <span className="ms-2">Procesando...</span>
+                                </>
+                            ) : 'Confirmar'}
+                        </button>
+                    </div>
                 </Modal.Footer>
             </Modal>
         </>
