@@ -16,79 +16,86 @@ function AdministrarEventos() {
   const [showEditForm, setShowEditForm] = useState(false);
   const [selectedEvento, setSelectedEvento] = useState(null);
   const [api, contextHolder] = notification.useNotification();
+  const [soloMisEventos, setSoloMisEventos] = useState(false); // Nuevo estado para el filtro
+  const [currentUserId, setCurrentUserId] = useState(null);
 
-  const fetchEventos = async () => {
+  const fetchEventos = async (misEventos = false) => {
     try {
-        setLoading(true);
-        const token = localStorage.getItem('authToken');
+      setLoading(true);
+      const token = localStorage.getItem('authToken');
 
-        if (!token) {
-            throw new Error('No hay sesión activa');
+      if (!token) {
+        throw new Error('No hay sesión activa');
+      }
+
+      // Determinar la URL según el filtro
+      const url = misEventos
+        ? `${API_URL}/Eventos/mis_eventos/`
+        : `${API_URL}/Eventos/eventos/`;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
+      });
 
-        const response = await fetch(`${API_URL}/Eventos/eventos/`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al obtener los eventos');
+      }
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Error al obtener los eventos');
-        }
-
-        const data = await response.json();
-        setEventos(data.eventos);
+      const data = await response.json();
+      setEventos(data.eventos || data); // Ajuste según la respuesta de tu API
     } catch (err) {
-        api.error({
-            message: 'Error',
-            description: err.message,
-            duration: 5,
-        });
+      api.error({
+        message: 'Error',
+        description: err.message,
+        duration: 5,
+      });
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
 
   // Función para obtener ministerios
   const fetchMinisterios = async () => {
     try {
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-            throw new Error('No se encontró token de autenticación');
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('No se encontró token de autenticación');
+      }
+
+      const response = await fetch(`${API_URL}/Ministerio/listarministerios/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
         }
+      });
 
-        const response = await fetch(`${API_URL}/Ministerio/listarministerios/`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-            }
-        });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al obtener los ministerios');
+      }
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Error al obtener los ministerios');
-        }
-
-        const data = await response.json();
-        setMinisterios(data.ministerios);
-        setLoading(false); // Asegurarse de desactivar el loading
+      const data = await response.json();
+      setMinisterios(data.ministerios);
+      setLoading(false); // Asegurarse de desactivar el loading
     } catch (err) {
-        api.error({
-            message: 'Error',
-            description: err.message,
-            duration: 5,
-        });
-        setLoading(false); // Asegurarse de desactivar el loading incluso en errores
+      api.error({
+        message: 'Error',
+        description: err.message,
+        duration: 5,
+      });
+      setLoading(false); // Asegurarse de desactivar el loading incluso en errores
     }
-};
+  };
 
   useEffect(() => {
-    fetchEventos();
+    fetchEventos(soloMisEventos);
     fetchMinisterios();
-  }, []);
+  }, [soloMisEventos]);
 
   const toggleFormulario = () => {
     setMostrarFormulario(!mostrarFormulario);
@@ -168,13 +175,31 @@ function AdministrarEventos() {
       ) : (
         <div>
           <div className="d-flex justify-content-between mb-4">
-            <input
-              type="text"
-              placeholder="Buscar evento"
-              className="form-control w-50 shadow-sm"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+            <div className="d-flex align-items-center gap-3">
+              <input
+                type="text"
+                placeholder="Buscar evento"
+                className="form-control shadow-sm"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{ width: '300px' }}
+              />
+              
+              {/* Nuevo switch para filtrar */}
+              <div className="form-check form-switch">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="misEventosSwitch"
+                  checked={soloMisEventos}
+                  onChange={() => setSoloMisEventos(!soloMisEventos)}
+                />
+                <label className="form-check-label" htmlFor="misEventosSwitch">
+                  Mostrar solo mis eventos
+                </label>
+              </div>
+            </div>
+
             <button
               className="btn btn-success text-white shadow-sm"
               onClick={toggleFormulario}
@@ -195,7 +220,7 @@ function AdministrarEventos() {
               eventos={eventos}
               filteredEventos={filteredEventos}
               loading={loading}
-              onRefreshData={fetchEventos}  
+              onRefreshData={() => fetchEventos(soloMisEventos)}  
               onVerDetalle={(id) => setEventoSeleccionadoId(id)} 
               onEditar={handleEditClick}  
             />
@@ -205,6 +230,5 @@ function AdministrarEventos() {
     </div>
   );
 }
-
 
 export default AdministrarEventos;
