@@ -3,7 +3,15 @@ import { notification } from "antd";
 import dayjs from "dayjs";
 import "../../../Styles/Tabla.css"
 
-function TablaEventos({ eventos, filteredEventos, onRefreshData, onVerDetalle, onEditar }) {
+function TablaEventos({
+  eventos,
+  filteredEventos,
+  onRefreshData,
+  onVerDetalle,
+  onEditar,
+  onAccionEvento,
+  soloMisEventos
+}) {
   const [api, contextHolder] = notification.useNotification();
 
   const formatFecha = (fecha, hora) => {
@@ -64,6 +72,20 @@ function TablaEventos({ eventos, filteredEventos, onRefreshData, onVerDetalle, o
                         disabled={evento.estado === 'Aprobado'}
                       >
                         <i className="bi bi-pencil-fill me-1"></i> Editar
+                      </button>
+
+                      {/* Botón de acción (Cancelar/Rechazar) */}
+                      <button
+                        className={soloMisEventos ? "btn-cancelar ms-2" : "btn-rechazar ms-2"}
+                        onClick={() => onAccionEvento(evento.id_evento)}
+                        disabled={
+                          soloMisEventos
+                            ? evento.estado === 'Cancelado'
+                            : evento.estado !== 'Pendiente'
+                        }
+                      >
+                        <i className={`bi ${soloMisEventos ? "bi-x-circle-fill" : "bi-slash-circle-fill"} me-1`}></i>
+                        {soloMisEventos ? "Cancelar" : "Rechazar"}
                       </button>
                     </div>
                   </td>

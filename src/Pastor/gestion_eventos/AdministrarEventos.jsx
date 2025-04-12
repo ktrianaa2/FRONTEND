@@ -31,7 +31,7 @@ function AdministrarEventos() {
       // Determinar la URL según el filtro
       const url = misEventos
         ? `${API_URL}/Eventos/mis_eventos/`
-        : `${API_URL}/Eventos/eventos/`;
+        : `${API_URL}/Eventos/evetos_usuarios/`;
 
       const response = await fetch(url, {
         method: 'GET',
@@ -144,6 +144,50 @@ function AdministrarEventos() {
     }
   };
 
+  const handleAccionEvento = async (idEvento) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      let response;
+
+      if (soloMisEventos) {
+        // Usar API de cancelar cuando el filtro está activado
+        response = await fetch(`${API_URL}/Eventos/cancelar/${idEvento}/`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+      } else {
+        // Usar API de aprobar/rechazar cuando el filtro está desactivado
+        response = await fetch(`${API_URL}/Eventos/aprobar-rechazar/${idEvento}/`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ accion: 'rechazar' })
+        });
+      }
+
+      if (!response.ok) throw new Error(`Error al ${soloMisEventos ? 'cancelar' : 'rechazar'} el evento`);
+
+      api.success({
+        message: 'Éxito',
+        description: `Evento ${soloMisEventos ? 'cancelado' : 'rechazado'} correctamente`,
+        duration: 3,
+      });
+      fetchEventos(soloMisEventos);
+    } catch (error) {
+      api.error({
+        message: 'Error',
+        description: error.message,
+        duration: 5,
+      });
+    }
+  };
+
+
   const filteredEventos = eventos.filter((evento) =>
     `${evento.nombre}`.toLowerCase().includes(search.toLowerCase())
   );
@@ -162,7 +206,7 @@ function AdministrarEventos() {
       ) : showEditForm ? (
         <FormularioEditarEvento
           evento={selectedEvento}
-          ministerios={ministerios} 
+          ministerios={ministerios}
           onClose={handleCloseForm}
           onUpdateSuccess={handleUpdateSuccess}
         />
@@ -170,7 +214,7 @@ function AdministrarEventos() {
         <FormularioEvento
           onClose={toggleFormulario}
           onSuccess={handleSuccess}
-          ministerios={ministerios} 
+          ministerios={ministerios}
         />
       ) : (
         <div>
@@ -184,7 +228,7 @@ function AdministrarEventos() {
                 onChange={(e) => setSearch(e.target.value)}
                 style={{ width: '300px' }}
               />
-              
+
               {/* Nuevo switch para filtrar */}
               <div className="form-check form-switch">
                 <input
@@ -220,9 +264,11 @@ function AdministrarEventos() {
               eventos={eventos}
               filteredEventos={filteredEventos}
               loading={loading}
-              onRefreshData={() => fetchEventos(soloMisEventos)}  
-              onVerDetalle={(id) => setEventoSeleccionadoId(id)} 
-              onEditar={handleEditClick}  
+              onRefreshData={() => fetchEventos(soloMisEventos)}
+              onVerDetalle={(id) => setEventoSeleccionadoId(id)}
+              onEditar={handleEditClick}
+              onAccionEvento={handleAccionEvento}
+              soloMisEventos={soloMisEventos}
             />
           )}
         </div>
