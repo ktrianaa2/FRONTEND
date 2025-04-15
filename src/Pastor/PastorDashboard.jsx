@@ -15,7 +15,7 @@ import AdministrarMisMinisterios from "./administrar_ministerios/AdministrarMisM
 import AdministrarReportes from "../Reportes/ReporteInicio";
 import AdministrarEventos from './gestion_eventos/AdministrarEventos';
 import CalendarioActividades from "./calendario_actividades/CalendarioActividades";
-
+import AdministrarDevocional from './devocional/AdministrarDevocional';
 
 const PastorDashboard = () => {
     const navigate = useNavigate();
@@ -72,6 +72,7 @@ const PastorDashboard = () => {
             "mis_ministerios": "/pastor/citi_mis_ministerios",
             "calendario": "/pastor/citi_calendario",
             "eventos": "/pastor/citi_eventos",
+            "devocional": "/pastor/citi_devocional",
             "diezmos": "/pastor/citi_diezmos",
             "curso": "/pastor/citi_curso",
             "familias": "/pastor/citi_familias",
@@ -94,6 +95,7 @@ const PastorDashboard = () => {
                         <Route path="citi_mis_ministerios" element={<AdministrarMisMinisterios />} />
                         <Route path="citi_calendario" element={<CalendarioActividades />} />
                         <Route path="citi_eventos" element={<AdministrarEventos />} />
+                        <Route path="citi_devocional" element={<AdministrarDevocional />} />
                         <Route path="citi_diezmos" element={<AdministrarDiezmos />} />
                         <Route path="citi_curso" element={<AdministrarCurso />} />
                         <Route path="citi_familias" element={<AdministrarFamiliasEvento />} />

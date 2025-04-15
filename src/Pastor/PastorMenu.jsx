@@ -80,6 +80,14 @@ function PastorMenu({ onNavigate, Usuario, onLogout }) {
           <li className="nav-item">
             <button
               className="nav-link btn"
+              onClick={() => onNavigate("devocional")}
+            >
+              Devocional
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className="nav-link btn"
               onClick={() => onNavigate("diezmos")}
             >
               Gestión de Diezmos

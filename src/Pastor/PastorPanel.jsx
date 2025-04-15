@@ -87,6 +87,22 @@ function PastorPanel({ onNavigate }) {
                 </Col>
 
                 <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
+                    <Card className="hover-relief shadow-sm" style={{ cursor: 'pointer' }} onClick={() => onNavigate("eventos")}>
+                        <Card.Img
+                            variant="top"
+                            src="/devocional.png"
+                            style={{ maxWidth: '100%', maxHeight: '100px', objectFit: 'contain', marginTop: '10px' }}
+                        />
+                        <Card.Body>
+                            <Card.Title>Devocional</Card.Title>
+                            <Card.Text>
+                                Organiza y gestiona el Devocional.
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                </Col>
+
+                <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
                     <Card className="hover-relief shadow-sm" style={{ cursor: 'pointer' }} onClick={() => onNavigate("calendario")}>
                         <Card.Img
                             variant="top"
@@ -144,7 +160,7 @@ function PastorPanel({ onNavigate }) {
                         <Card.Body>
                             <Card.Title>Familias al Encuentro con Jesús</Card.Title>
                             <Card.Text>
-                                Organiza y gestiona este ministerio de familias.
+                                Organiza y gestiona este Evento.
                             </Card.Text>
                         </Card.Body>
                     </Card>

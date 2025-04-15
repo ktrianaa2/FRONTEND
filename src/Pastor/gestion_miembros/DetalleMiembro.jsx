@@ -57,7 +57,7 @@ function DetalleMiembro({ idMiembro, onClose }) {
     if (!miembro) return <div className="text-danger">No se encontró al miembro.</div>;
 
     return (
-        <div className="detalle-container shadow p-4">
+        <div className="detalle-container">
             {contextHolder}
             <h4 className="titulo">Detalle del {miembro.rol}</h4>
             <hr />
