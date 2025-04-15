@@ -5,7 +5,7 @@ import FormularioEvento from "./Formularios/FormularioEvento";
 import FormularioEditarEvento from "./Formularios/FormularioEditarEvento";
 import DetalleEvento from "./DetalleEvento"
 import API_URL from "../../../Config";
-
+import ModalMotivo from "./ModalMotivo";
 function AdministrarEventos() {
   const [search, setSearch] = useState("");
   const [eventos, setEventos] = useState([]);
@@ -17,7 +17,25 @@ function AdministrarEventos() {
   const [selectedEvento, setSelectedEvento] = useState(null);
   const [api, contextHolder] = notification.useNotification();
   const [soloMisEventos, setSoloMisEventos] = useState(false); // Nuevo estado para el filtro
-  const [currentUserId, setCurrentUserId] = useState(null);
+
+  const [modalMotivo, setModalMotivo] = useState({
+    visible: false,
+    idEvento: null,
+    accion: '',
+  });
+
+  const handleAbrirModalMotivo = (idEvento, accion) => {
+    setModalMotivo({
+      visible: true,
+      idEvento,
+      accion
+    });
+  };
+
+  const handleConfirmarAccion = (motivo) => {
+    handleAccionEvento(modalMotivo.idEvento, modalMotivo.accion, motivo);
+    setModalMotivo({ visible: false, idEvento: null, accion: '' });
+  };
 
   const fetchEventos = async (misEventos = false) => {
     try {
@@ -144,37 +162,78 @@ function AdministrarEventos() {
     }
   };
 
-  const handleAccionEvento = async (idEvento) => {
+  const handleAccionEvento = async (idEvento, accion, motivo = '') => {
     try {
       const token = localStorage.getItem('authToken');
       let response;
+      let mensaje = '';
+      let url = '';
+      let bodyData = {};
 
       if (soloMisEventos) {
-        // Usar API de cancelar cuando el filtro está activado
-        response = await fetch(`${API_URL}/Eventos/cancelar/${idEvento}/`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
+        // Lógica para cancelar/reactivar (tus eventos)
+        const evento = eventos.find(e => e.id_evento === idEvento);
+        const estaCancelado = evento.estado === 'Cancelado';
+
+        // Mensajes específicos para cada caso
+        if (estaCancelado) {
+          mensaje = 'Evento reactivado';
+          url = `${API_URL}/Eventos/cancelar-reactivar/${idEvento}/`;
+          bodyData = {
+            motivo: motivo || 'Reactivado por el creador'
+          };
+        } else {
+          mensaje = 'Evento cancelado';
+          url = `${API_URL}/Eventos/cancelar-reactivar/${idEvento}/`;
+          bodyData = {
+            motivo: motivo || 'Cancelado por el creador'
+          };
+        }
       } else {
-        // Usar API de aprobar/rechazar cuando el filtro está desactivado
-        response = await fetch(`${API_URL}/Eventos/aprobar-rechazar/${idEvento}/`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ accion: 'rechazar' })
-        });
+        // Lógica para aprobar/rechazar/posponer/cancelar (todos los eventos)
+        if (!accion) {
+          throw new Error('Acción no especificada');
+        }
+
+        // Mensajes específicos para cada acción
+        switch (accion) {
+          case 'aprobar':
+            mensaje = 'Evento aprobado';
+            break;
+          case 'rechazar':
+            mensaje = 'Evento rechazado';
+            break;
+          case 'posponer':
+            mensaje = 'Evento pospuesto';
+            break;
+          case 'cancelar':
+            mensaje = 'Evento cancelado';
+            break;
+          default:
+            mensaje = `Acción ${accion} realizada`;
+        }
+
+        url = `${API_URL}/Eventos/aprobar-rechazar/${idEvento}/`;
+        bodyData = {
+          accion,
+          motivo: motivo || `${mensaje} por administrador`
+        };
       }
 
-      if (!response.ok) throw new Error(`Error al ${soloMisEventos ? 'cancelar' : 'rechazar'} el evento`);
+      response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(bodyData)
+      });
+
+      if (!response.ok) throw new Error(`Error al realizar la acción`);
 
       api.success({
         message: 'Éxito',
-        description: `Evento ${soloMisEventos ? 'cancelado' : 'rechazado'} correctamente`,
+        description: mensaje,
         duration: 3,
       });
       fetchEventos(soloMisEventos);
@@ -187,16 +246,22 @@ function AdministrarEventos() {
     }
   };
 
-
   const filteredEventos = eventos.filter((evento) =>
     `${evento.nombre}`.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div>
-      {contextHolder}
+      {contextHolder} {/* Solo mantener esta instancia */}
       <h2 className="text-black">Administración de Eventos</h2>
       <hr />
+
+      <ModalMotivo
+        open={modalMotivo.visible}  // Cambiado de 'visible' a 'open'
+        onCancel={() => setModalMotivo({ visible: false, idEvento: null, accion: '' })}
+        onConfirm={handleConfirmarAccion}
+        accion={modalMotivo.accion}
+      />
 
       {eventoSeleccionadoId ? (
         <DetalleEvento
@@ -269,6 +334,7 @@ function AdministrarEventos() {
               onEditar={handleEditClick}
               onAccionEvento={handleAccionEvento}
               soloMisEventos={soloMisEventos}
+              onAbrirModalMotivo={handleAbrirModalMotivo}
             />
           )}
         </div>
