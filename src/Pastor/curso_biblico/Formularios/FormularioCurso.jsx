@@ -1,26 +1,51 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { notification } from "antd";
 import API_URL from "../../../../Config";
 import "../../../Styles/Formulario.css";
 
-function FormularioCrearCurso({ onClose, onSuccess }) {
+function FormularioCrearCurso({ onClose, onSuccess, idCiclo }) {
     const [formData, setFormData] = useState({
         nombre: "",
         descripcion: "",
         fecha_inicio: "",
         fecha_fin: "",
         hora_inicio: "",
-        hora_fin: ""
+        hora_fin: "",
+        id_ciclo: idCiclo,
     });
 
+    const [ciclos, setCiclos] = useState([]);
     const [loading, setLoading] = useState(false);
     const [api, contextHolder] = notification.useNotification();
+
+    // Cargar ciclos al montar el componente
+    useEffect(() => {
+        const fetchCiclos = async () => {
+            try {
+                const token = localStorage.getItem("authToken");
+                const res = await fetch(`${API_URL}/Ciclos/listar_ciclos/`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                const data = await res.json();
+                setCiclos(data);
+            } catch (error) {
+                api.error({
+                    message: "Error al cargar ciclos",
+                    description: error.message || "No se pudieron obtener los ciclos",
+                });
+            }
+        };
+
+        fetchCiclos();
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({
             ...formData,
-            [name]: value
+            [name]: value,
         });
     };
 
@@ -28,18 +53,24 @@ function FormularioCrearCurso({ onClose, onSuccess }) {
         e.preventDefault();
         setLoading(true);
         try {
-            const token = localStorage.getItem('authToken');
-            const response = await fetch(`${API_URL}/Cursos`, {
+            const token = localStorage.getItem("authToken");
+            const form = new FormData();
+
+            for (const key in formData) {
+                form.append(key, formData[key]);
+            }
+
+            const response = await fetch(`${API_URL}/Cursos/crear_curso/`, {
                 method: "POST",
                 headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
+                    Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(formData),
+                body: form,
             });
 
             if (!response.ok) {
-                throw new Error("Error al crear el curso");
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Error al crear el curso");
             }
 
             api.success({
@@ -57,7 +88,6 @@ function FormularioCrearCurso({ onClose, onSuccess }) {
             setLoading(false);
         }
     };
-
 
     return (
         <div className="formulario-card">
@@ -116,7 +146,7 @@ function FormularioCrearCurso({ onClose, onSuccess }) {
                     <div className="row mb-3 g-3">
                         <div className="col-md-6">
                             <div className="formulario-campo">
-                                <label htmlFor="fecha" className="formulario-label">
+                                <label htmlFor="fecha_inicio" className="formulario-label">
                                     Fecha de Inicio <span className="text-danger">*</span>
                                 </label>
                                 <div className="formulario-input-group">
@@ -137,7 +167,7 @@ function FormularioCrearCurso({ onClose, onSuccess }) {
                         </div>
                         <div className="col-md-6">
                             <div className="formulario-campo">
-                                <label htmlFor="fecha" className="formulario-label">
+                                <label htmlFor="fecha_fin" className="formulario-label">
                                     Fecha Fin <span className="text-danger">*</span>
                                 </label>
                                 <div className="formulario-input-group">
@@ -161,7 +191,7 @@ function FormularioCrearCurso({ onClose, onSuccess }) {
                     <div className="row mb-3 g-3">
                         <div className="col-md-6">
                             <div className="formulario-campo">
-                                <label htmlFor="hora" className="formulario-label">
+                                <label htmlFor="hora_inicio" className="formulario-label">
                                     Hora de Inicio <span className="text-danger">*</span>
                                 </label>
                                 <div className="formulario-input-group">
@@ -182,7 +212,7 @@ function FormularioCrearCurso({ onClose, onSuccess }) {
                         </div>
                         <div className="col-md-6">
                             <div className="formulario-campo">
-                                <label htmlFor="hora" className="formulario-label">
+                                <label htmlFor="hora_fin" className="formulario-label">
                                     Hora Fin <span className="text-danger">*</span>
                                 </label>
                                 <div className="formulario-input-group">
@@ -199,6 +229,34 @@ function FormularioCrearCurso({ onClose, onSuccess }) {
                                         required
                                     />
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="row mb-3 g-3">
+                        <div className="formulario-campo">
+                            <label htmlFor="id_ciclo" className="formulario-label">
+                                Ciclo <span className="text-danger">*</span>
+                            </label>
+                            <div className="formulario-input-group">
+                                <span className="formulario-input-group-text">
+                                    <i className="bi bi-diagram-3"></i>
+                                </span>
+                                <select
+                                    id="id_ciclo"
+                                    name="id_ciclo"
+                                    className="formulario-input"
+                                    value={formData.id_ciclo}
+                                    onChange={handleChange}
+                                    required
+                                >
+                                    <option value="">Selecciona un ciclo</option>
+                                    {ciclos.map((ciclo) => (
+                                        <option key={ciclo.id_ciclo} value={ciclo.id_ciclo}>
+                                            {ciclo.nombre}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -224,9 +282,7 @@ function FormularioCrearCurso({ onClose, onSuccess }) {
                                     Creando...
                                 </>
                             ) : (
-                                <>
-                                    Crear Curso
-                                </>
+                                <>Crear Curso</>
                             )}
                         </button>
                     </div>
