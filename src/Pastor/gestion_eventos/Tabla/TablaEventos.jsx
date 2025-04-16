@@ -6,7 +6,7 @@ import "../../../Styles/Tabla.css"
 function TablaEventos({
   eventos,
   filteredEventos,
-  onRefreshData,
+  onAbrirModalMotivo,
   onVerDetalle,
   onEditar,
   onAccionEvento,
@@ -23,8 +23,8 @@ function TablaEventos({
       {contextHolder}
       {filteredEventos.length > 0 ? (
         <div className="table-responsive">
-          <table className="tabla-principal">
-            <thead>
+          <table className="table table-striped table-hover">
+            <thead className="table-light">
               <tr>
                 <th>Nombre</th>
                 <th>Descripción</th>
@@ -46,47 +46,80 @@ function TablaEventos({
                   <td>{evento.lugar || 'No especificado'}</td>
                   <td>{evento.ministerio}</td>
                   <td>
-                    <span className={
-                      evento.estado === 'Aprobado'
-                        ? 'badge-activo'
-                        : evento.estado === 'Pendiente'
-                          ? 'badge-pendiente'
-                          : evento.estado === 'Rechazado'
-                            ? 'badge-rechazado'
-                            : 'badge-inactivo'
-                    }>
+                    <span className={`badge ${evento.estado === 'Aprobado' ? 'bg-success' :
+                      evento.estado === 'Pendiente' ? 'bg-warning text-dark' :
+                      evento.estado === 'Rechazado' ? 'bg-danger' :
+                      evento.estado === 'Cancelado' ? 'bg-secondary' :
+                      evento.estado === 'Pospuesto' ? 'bg-info' :
+                      'bg-primary'}`}>
                       {evento.estado}
                     </span>
                   </td>
                   <td>
-                    <div className="btn-acciones">
+                    <div className="d-flex gap-2">
                       <button
-                        className="btn-ver"
+                        className="btn btn-sm btn-primary"
                         onClick={() => onVerDetalle(evento.id_evento)}
                       >
                         <i className="bi bi-eye-fill me-1"></i> Ver
                       </button>
                       <button
-                        className="btn-editar"
+                        className="btn btn-sm btn-warning"
                         onClick={() => onEditar(evento)}
                         disabled={evento.estado === 'Aprobado'}
                       >
                         <i className="bi bi-pencil-fill me-1"></i> Editar
                       </button>
 
-                      {/* Botón de acción (Cancelar/Rechazar) */}
-                      <button
-                        className={soloMisEventos ? "btn-cancelar ms-2" : "btn-rechazar ms-2"}
-                        onClick={() => onAccionEvento(evento.id_evento)}
-                        disabled={
-                          soloMisEventos
-                            ? evento.estado === 'Cancelado'
-                            : evento.estado !== 'Pendiente'
-                        }
-                      >
-                        <i className={`bi ${soloMisEventos ? "bi-x-circle-fill" : "bi-slash-circle-fill"} me-1`}></i>
-                        {soloMisEventos ? "Cancelar" : "Rechazar"}
-                      </button>
+                      {soloMisEventos && (
+                        <button
+                          className={`btn btn-sm ${evento.estado === 'Cancelado' ? 'btn-success' : 'btn-danger'
+                            }`}
+                          onClick={() => onAccionEvento(evento.id_evento)}
+                        >
+                          <i className={`bi ${evento.estado === 'Cancelado' ? 'bi-arrow-counterclockwise' : 'bi-x-circle-fill'
+                            } me-1`}></i>
+                          {evento.estado === 'Cancelado' ? 'Reactivar' : 'Cancelar'}
+                        </button>
+                      )}
+                      {!soloMisEventos && (
+                        <>
+                          {evento.estado === 'Pendiente' && (
+                            <>
+                              <button
+                                className="btn btn-sm btn-success"
+                                onClick={() => onAbrirModalMotivo(evento.id_evento, 'aprobar')}
+                              >
+                                <i className="bi bi-check-circle-fill me-1"></i>
+                                Aprobar
+                              </button>
+                              <button
+                                className="btn btn-sm btn-info"
+                                onClick={() => onAbrirModalMotivo(evento.id_evento, 'posponer')}
+                              >
+                                <i className="bi bi-clock-fill me-1"></i>
+                                Posponer
+                              </button>
+                              <button
+                                className="btn btn-sm btn-danger"
+                                onClick={() => onAbrirModalMotivo(evento.id_evento, 'rechazar')}
+                              >
+                                <i className="bi bi-slash-circle-fill me-1"></i>
+                                Rechazar
+                              </button>
+                            </>
+                          )}
+                          {evento.estado === 'Aprobado' && (
+                            <button
+                              className="btn btn-sm btn-danger"
+                              onClick={() => onAbrirModalMotivo(evento.id_evento, 'cancelar')}
+                            >
+                              <i className="bi bi-x-circle-fill me-1"></i>
+                              Cancelar
+                            </button>
+                          )}
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -95,7 +128,7 @@ function TablaEventos({
           </table>
         </div>
       ) : (
-        <div className={`sin-contenido-mensaje ${eventos.length === 0 ? '' : 'filtros'}`}>
+        <div className="alert alert-info">
           {eventos.length === 0
             ? "No hay eventos registrados todavía."
             : "No hay eventos que coincidan con los filtros aplicados."}
