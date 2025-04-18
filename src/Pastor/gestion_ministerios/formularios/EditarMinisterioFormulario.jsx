@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { notification } from "antd";
 import API_URL from "../../../../Config";
 import "../../../Styles/Formulario.css";
@@ -11,6 +11,10 @@ function EditarMinisterioFormulario({ ministerio, onClose }) {
   const [personasDisponibles, setPersonasDisponibles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorLideres, setErrorLideres] = useState(null);
+  const [imagen, setImagen] = useState(null);
+  const [preview, setPreview] = useState(ministerio.imagen_url || null);
+  const [eliminarImagen, setEliminarImagen] = useState(false);
+  const fileInputRef = useRef(null);
   const [api, contextHolder] = notification.useNotification();
 
   // Cargar personas disponibles y líderes actuales
@@ -50,6 +54,7 @@ function EditarMinisterioFormulario({ ministerio, onClose }) {
         setLideres(lideresActuales);
         setNombre(ministerio.nombre);
         setDescripcion(ministerio.descripcion);
+        setPreview(ministerio.imagen_url || null);
 
       } catch (error) {
         console.error('Error:', error);
@@ -60,6 +65,47 @@ function EditarMinisterioFormulario({ ministerio, onClose }) {
 
     fetchData();
   }, [ministerio]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validar tamaño de imagen (máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      api.error({
+        message: 'Error',
+        description: 'La imagen es demasiado grande (máximo 5MB)',
+        duration: 5,
+      });
+      return;
+    }
+
+    // Validar tipo de archivo
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      api.error({
+        message: 'Error',
+        description: 'Formato no válido. Use JPG, PNG o WEBP',
+        duration: 5,
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreview(reader.result);
+      setImagen(file);
+      setEliminarImagen(false); // Si suben nueva imagen, cancelar eliminación
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setPreview(null);
+    setImagen(null);
+    setEliminarImagen(true);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const handleAddLider = () => {
     if (selectedLider && !lideres.some(l => l.id === selectedLider)) {
@@ -92,12 +138,24 @@ function EditarMinisterioFormulario({ ministerio, onClose }) {
     try {
       const token = localStorage.getItem('authToken');
       const formData = new FormData();
+      
+      // Datos básicos
       formData.append('nombre', nombre);
       formData.append('descripcion', descripcion);
-
-      // Enviar null para líderes que fueron eliminados
+      
+      // Líderes (enviar vacío si se eliminó)
       formData.append('id_persona_lider1', lideres[0]?.id || '');
       formData.append('id_persona_lider2', lideres[1]?.id || '');
+      
+      // Imagen
+      if (imagen) {
+        formData.append('imagen', imagen);
+      }
+      
+      // Eliminar imagen
+      if (eliminarImagen) {
+        formData.append('eliminar_imagen', 'true');
+      }
 
       const response = await fetch(`${API_URL}/Ministerio/editarministerios/${ministerio.id_ministerio}/`, {
         method: 'POST',
@@ -112,7 +170,6 @@ function EditarMinisterioFormulario({ ministerio, onClose }) {
 
         // Manejar error específico de validación de líderes
         if (errorData.error === "Error en los líderes") {
-          // Obtener el ID del líder con problemas desde el mensaje de error
           const errorDetails = errorData.detalles;
           const errorKey = Object.keys(errorDetails)[0]; // 'lider1' o 'lider2'
           const errorMessage = errorDetails[errorKey];
@@ -121,11 +178,9 @@ function EditarMinisterioFormulario({ ministerio, onClose }) {
           const liderConError = lideres[errorKey === 'lider1' ? 0 : 1];
 
           // Crear mensaje personalizado
-          const mensajeError = `Error en ${liderConError?.nombreCompleto}: ${errorMessage.replace(/\\u[\dA-F]{4}/gi,
-            match => String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16)))}`;
-
+          const mensajeError = `Error en ${liderConError?.nombreCompleto}: ${errorMessage}`;
           setErrorLideres(mensajeError);
-          return; // No cerrar el formulario
+          return;
         }
 
         throw new Error(errorData.error || 'Error al editar ministerio');
@@ -136,12 +191,15 @@ function EditarMinisterioFormulario({ ministerio, onClose }) {
 
     } catch (error) {
       if (error.message.includes("Todos los datos de la persona deben estar completos")) {
-        // Extraer el nombre del líder del mensaje de error si es posible
         const match = error.message.match(/para (.+?) \(/);
         const nombreLider = match ? match[1] : "el líder seleccionado";
         setErrorLideres(`Error en ${nombreLider}: Todos los datos deben estar completos para ser líder`);
       } else {
-        onClose(false, error.message);
+        api.error({
+          message: 'Error',
+          description: error.message,
+          duration: 5,
+        });
       }
     }
   };
@@ -156,7 +214,7 @@ function EditarMinisterioFormulario({ ministerio, onClose }) {
       <div className="formulario-header">
         <h5 className="formulario-titulo">
           <i className="bi bi-building-fill me-2"></i>
-          Agregar Nuevo Ministerio
+          Editar Ministerio
         </h5>
       </div>
       <div className="formulario-body">
@@ -196,6 +254,54 @@ function EditarMinisterioFormulario({ ministerio, onClose }) {
                 onChange={(e) => setDescripcion(e.target.value)}
                 required
               />
+            </div>
+          </div>
+
+          <div className="formulario-campo">
+            <label className="formulario-label">
+              Imagen del Ministerio
+            </label>
+            <div className="image-upload-container">
+              {preview && !eliminarImagen ? (
+                <div className="position-relative" style={{width: '150px'}}>
+                  <img 
+                    src={preview} 
+                    alt="Preview" 
+                    className="img-thumbnail"
+                    style={{width: '100%', height: '150px', objectFit: 'cover'}}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 rounded-circle"
+                    onClick={handleRemoveImage}
+                    style={{width: '25px', height: '25px'}}
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn-outline-primary align-self-start"
+                  onClick={() => fileInputRef.current.click()}
+                >
+                  <i className="bi bi-cloud-arrow-up me-2"></i>
+                  {ministerio.imagen_url ? 'Cambiar Imagen' : 'Seleccionar Imagen'}
+                </button>
+              )}
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageChange}
+                accept="image/*"
+                className="d-none"
+              />
+              {ministerio.imagen_url && !preview && eliminarImagen && (
+                <div className="alert alert-warning p-2 mt-2">
+                  <small>La imagen actual se eliminará al guardar los cambios</small>
+                </div>
+              )}
+              <small className="text-muted d-block mt-1">Formatos: JPEG, PNG, WEBP (Máx. 5MB)</small>
             </div>
           </div>
 

@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { notification } from "antd";
+import React, { useState, useEffect, useRef } from "react";
 import API_URL from "../../../../Config";
 import "../../../Styles/Formulario.css";
 
@@ -11,6 +10,9 @@ function AgregarMinisterioFormulario({ onClose, api }) {
   const [availableLideres, setAvailableLideres] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [imagen, setImagen] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const fileInputRef = useRef(null);
 
   // Obtener lista de líderes disponibles al cargar el componente
   useEffect(() => {
@@ -48,6 +50,24 @@ function AgregarMinisterioFormulario({ onClose, api }) {
     fetchLideres();
   }, [api]);
 
+  // Generar preview de la imagen seleccionada
+  useEffect(() => {
+    if (!imagen) {
+      setPreview(null);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreview(reader.result);
+    };
+    reader.readAsDataURL(imagen);
+
+    return () => {
+      reader.abort();
+    };
+  }, [imagen]);
+
   const handleAddLider = () => {
     if (selectedLider && !lideres.includes(selectedLider) && lideres.length < 2) {
       setLideres([...lideres, selectedLider]);
@@ -57,6 +77,42 @@ function AgregarMinisterioFormulario({ onClose, api }) {
 
   const handleRemoveLider = (liderId) => {
     setLideres(lideres.filter((id) => id !== liderId));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validar tipo de archivo
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      api.error({
+        message: 'Formato no válido',
+        description: 'Solo se permiten imágenes JPEG, PNG o WEBP',
+        duration: 5,
+      });
+      return;
+    }
+
+    // Validar tamaño (máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      api.error({
+        message: 'Imagen demasiado grande',
+        description: 'El tamaño máximo permitido es 5MB',
+        duration: 5,
+      });
+      return;
+    }
+
+    setImagen(file);
+  };
+
+  const handleRemoveImage = () => {
+    setImagen(null);
+    setPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -73,6 +129,10 @@ function AgregarMinisterioFormulario({ onClose, api }) {
       formData.append('nombre', nombre);
       formData.append('descripcion', descripcion);
 
+      if (imagen) {
+        formData.append('imagen', imagen);
+      }
+
       lideres.forEach((liderId, index) => {
         formData.append(`id_persona_lider${index + 1}`, liderId);
       });
@@ -88,7 +148,6 @@ function AgregarMinisterioFormulario({ onClose, api }) {
       const responseData = await response.json();
 
       if (!response.ok) {
-        // Manejo específico de errores conocidos del backend
         if (responseData.error) {
           if (response.status === 400 && responseData.error.includes("Ya existe un ministerio con este nombre")) {
             api.warning({
@@ -117,15 +176,12 @@ function AgregarMinisterioFormulario({ onClose, api }) {
             return;
           }
 
-          // Error genérico del backend
           throw new Error(responseData.error);
         }
 
-        // Error sin mensaje específico
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
 
-      // Éxito
       api.success({
         message: 'Éxito',
         description: responseData.mensaje || 'Ministerio creado correctamente',
@@ -199,6 +255,55 @@ function AgregarMinisterioFormulario({ onClose, api }) {
 
           <div className="formulario-campo">
             <label className="formulario-label">
+              Imagen del Ministerio
+            </label>
+            <div className="image-upload-container">
+              {preview ? (
+                <div className="position-relative" style={{ width: '150px', height: '150px' }}>
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    className="img-thumbnail w-100 h-100 object-fit-cover"
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 rounded-circle"
+                    onClick={handleRemoveImage}
+                    disabled={submitting}
+                    style={{ width: '25px', height: '25px' }}
+                  >
+                    <i className="bi bi-x"></i>
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary d-flex align-items-center gap-2"
+                    onClick={() => fileInputRef.current.click()}
+                    disabled={submitting}
+                  >
+                    <i className="bi bi-cloud-arrow-up"></i>
+                    <span>Seleccionar Imagen</span>
+                  </button>
+                  <input
+                    type="file"
+                    id="imagen"
+                    ref={fileInputRef}
+                    onChange={handleImageChange}
+                    accept="image/jpeg, image/png, image/webp"
+                    className="d-none"
+                    disabled={submitting}
+                  />
+                  <small className="text-muted mt-2 d-block">
+                    Formatos admitidos: JPEG, PNG, WEBP (Máx. 5MB)
+                  </small>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="formulario-campo">
+            <label className="formulario-label">
               Líder(es) (Máximo 2)
             </label>
             <div className="contenedor-select-boton">
@@ -268,7 +373,7 @@ function AgregarMinisterioFormulario({ onClose, api }) {
             <button
               type="submit"
               className="btn-guardar"
-              disabled={submitting}
+              disabled={submitting || !nombre || !descripcion}
             >
               {submitting ? (
                 <>
@@ -286,7 +391,6 @@ function AgregarMinisterioFormulario({ onClose, api }) {
       </div>
     </div>
   );
-
 }
 
 export default AgregarMinisterioFormulario;

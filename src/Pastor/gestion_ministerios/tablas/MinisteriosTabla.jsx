@@ -1,9 +1,11 @@
-import React from "react";
-import { notification } from "antd";
+import React, { useState } from "react";
+import { notification, Modal } from "antd";
 import "../../../Styles/Tabla.css"
 
 function MinisteriosTabla({ ministerios, filteredMinisterios, handleEdit, handleDisable, onVerDetalles }) {
   const [api, contextHolder] = notification.useNotification();
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
 
   const formatLideres = (lider1, lider2) => {
     const lideres = [];
@@ -15,6 +17,13 @@ function MinisteriosTabla({ ministerios, filteredMinisterios, handleEdit, handle
     }
     return lideres.length > 0 ? lideres.join(", ") : "Sin líderes asignados";
   };
+
+  const handlePreview = (imgUrl) => {
+    setPreviewImage(imgUrl);
+    setPreviewVisible(true);
+  };
+
+  const handleCancel = () => setPreviewVisible(false);
 
   return (
     <div>
@@ -35,14 +44,29 @@ function MinisteriosTabla({ ministerios, filteredMinisterios, handleEdit, handle
             {filteredMinisterios.map((ministerio) => (
               <tr key={ministerio.id_ministerio}>
                 <td>
-                  {ministerio.logo ? (
-                    <img
-                      src={ministerio.logo}
-                      alt={ministerio.nombre}
-                      className="tabla-logo"
-                    />
+                  {ministerio.imagen_url ? (
+                    <div 
+                      className="imagen-container"
+                      onClick={() => handlePreview(ministerio.imagen_url)}
+                      style={{cursor: 'pointer'}}
+                    >
+                      <img
+                        src={ministerio.imagen_url}
+                        alt={ministerio.nombre}
+                        className="tabla-logo"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = '/path/to/default-image.png';
+                        }}
+                      />
+                      <div className="zoom-icon">
+                        <i className="fas fa-search-plus"></i>
+                      </div>
+                    </div>
                   ) : (
-                    <div className="tabla-logo-placeholder">—</div>
+                    <div className="tabla-logo-placeholder">
+                      <i className="fas fa-church"></i>
+                    </div>
                   )}
                 </td>
                 <td>{ministerio.nombre}</td>
@@ -87,6 +111,22 @@ function MinisteriosTabla({ ministerios, filteredMinisterios, handleEdit, handle
             : "No hay ministerios que coincidan con los filtros aplicados."}
         </div>
       )}
+
+      {/* Modal para vista ampliada de la imagen */}
+      <Modal
+        visible={previewVisible}
+        footer={null}
+        onCancel={handleCancel}
+        width="auto"
+        style={{ maxWidth: '90vw' }}
+        bodyStyle={{ padding: 0, textAlign: 'center' }}
+      >
+        <img
+          alt="Vista previa"
+          style={{ maxHeight: '80vh', maxWidth: '100%' }}
+          src={previewImage}
+        />
+      </Modal>
     </div>
   );
 }
