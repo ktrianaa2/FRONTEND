@@ -8,6 +8,7 @@ import FormularioCrearCiclo from "./ciclos/Formularios/FormularioCiclo";
 import FormularioEditarCiclo from "./ciclos/Formularios/FormularioEditarCiclo";
 import DetalleCiclo from "./ciclos/DetalleCiclo";
 import API_URL from "../../../Config";
+import "../../Styles/Formulario.css"
 
 const { Option } = Select;
 
@@ -17,20 +18,17 @@ function AdministrarCursos() {
     const [ciclos, setCiclos] = useState([]);
     const [cursos, setCursos] = useState([]);
     const [cursoSeleccionadoId, setCursoSeleccionadoId] = useState(null);
-    const [mostrarFormularioCurso, setMostrarFormularioCurso] = useState(false);
-    const [showEditForm, setShowEditForm] = useState(false);
-    const [showEditCicloForm, setShowEditCicloForm] = useState(false);
     const [selectedCurso, setSelectedCurso] = useState(null);
     const [loading, setLoading] = useState(true);
     const [loadingCursos, setLoadingCursos] = useState(false);
     const [selectedCicloId, setSelectedCicloId] = useState(null);
     const [selectedCiclo, setSelectedCiclo] = useState(null);
-    const [mostrarFormularioCiclo, setMostrarFormularioCiclo] = useState(false);
-    const [mostrarDetalleCiclo, setMostrarDetalleCiclo] = useState(false);
 
-    useEffect(() => {
-        console.log("Ciclo seleccionado actualizado:", selectedCiclo);
-    }, [selectedCiclo]);
+    const [currentView, setCurrentView] = useState("main"); // "main", "createCiclo", "detalleCiclo", "createCurso", "detalleCurso", "editCurso", "editCiclo"
+
+    const handleClose = () => {
+        setCurrentView("main");
+    };
 
     const fetchCiclos = async () => {
         try {
@@ -54,11 +52,9 @@ function AdministrarCursos() {
             const data = await response.json();
             setCiclos(data.ciclos);
 
-            // Si hay ciclos, seleccionar el primero automáticamente
             if (data.ciclos.length > 0) {
                 setSelectedCicloId(data.ciclos[0].id_ciclo);
                 setSelectedCiclo(data.ciclos[0]);
-                setMostrarDetalleCiclo(true);
                 fetchCursos(data.ciclos[0].id_ciclo);
             }
 
@@ -76,8 +72,12 @@ function AdministrarCursos() {
     const fetchCursos = async (cicloId) => {
         try {
             setLoadingCursos(true);
+            setCursos([]);
             const token = localStorage.getItem("authToken");
             if (!token) throw new Error("No hay sesión activa");
+            if (!cicloId) {
+                throw new Error("No se ha seleccionado un ciclo válido");
+            }
 
             const response = await fetch(`${API_URL}/Cursos/listar_cursos/${cicloId}/`, {
                 method: "GET",
@@ -100,6 +100,7 @@ function AdministrarCursos() {
                 description: err.message,
                 duration: 5,
             });
+            setCursos([]);
         } finally {
             setLoadingCursos(false);
         }
@@ -107,7 +108,7 @@ function AdministrarCursos() {
 
     const handleCreateCicloSuccess = () => {
         fetchCiclos();
-        setMostrarFormularioCiclo(false);
+        handleClose();
         api.success({
             message: "Éxito",
             description: "Ciclo creado correctamente",
@@ -117,7 +118,7 @@ function AdministrarCursos() {
 
     const handleUpdateCicloSuccess = () => {
         fetchCiclos();
-        setShowEditCicloForm(false);
+        handleClose();
         api.success({
             message: "Éxito",
             description: "Ciclo actualizado correctamente",
@@ -138,7 +139,6 @@ function AdministrarCursos() {
 
         setSelectedCicloId(value);
         setSelectedCiclo(cicloSeleccionado);
-        setMostrarDetalleCiclo(true);
         fetchCursos(value);
     };
 
@@ -146,17 +146,9 @@ function AdministrarCursos() {
         fetchCiclos();
     }, []);
 
-    const toggleFormularioCurso = () => {
-        setMostrarFormularioCurso(!mostrarFormularioCurso);
-    };
-
-    const toggleFormularioCiclo = () => {
-        setMostrarFormularioCiclo(!mostrarFormularioCiclo);
-    };
-
     const handleSuccessCurso = () => {
         fetchCursos(selectedCicloId);
-        toggleFormularioCurso();
+        handleClose();
         api.success({
             message: "Éxito",
             description: "Curso creado correctamente",
@@ -166,12 +158,7 @@ function AdministrarCursos() {
 
     const handleEditClick = (curso) => {
         setSelectedCurso(curso);
-        setShowEditForm(true);
-    };
-
-    const handleCloseForm = () => {
-        setShowEditForm(false);
-        setSelectedCurso(null);
+        setCurrentView("editCurso");
     };
 
     const handleUpdateSuccess = async () => {
@@ -183,7 +170,7 @@ function AdministrarCursos() {
             });
 
             await fetchCursos(selectedCicloId);
-            setShowEditForm(false);
+            handleClose();
             setSelectedCurso(null);
         } catch (error) {
             api.error({
@@ -198,133 +185,154 @@ function AdministrarCursos() {
         `${curso.nombre}`.toLowerCase().includes(search.toLowerCase())
     );
 
+    const renderMainView = () => (
+        <div>
+            <div className="d-flex justify-content-between mb-4">
+                <h4>Seleccione un ciclo</h4>
+                <button
+                    className="btn-guardar"
+                    onClick={() => setCurrentView("createCiclo")}
+                >
+                    <i className="bi bi-plus-circle me-1"></i>
+                    Crear Ciclo
+                </button>
+            </div>
+
+            {loading ? (
+                <div className="text-center my-4">Cargando ciclos...</div>
+            ) : ciclos.length === 0 ? (
+                <div className="alert alert-info">
+                    No hay ciclos disponibles. Crea un nuevo ciclo para comenzar.
+                </div>
+            ) : (
+                <>
+                    <Select
+                        showSearch
+                        style={{ width: '100%', marginBottom: '20px' }}
+                        placeholder="Buscar ciclo..."
+                        optionFilterProp="children"
+                        onChange={handleCicloSelect}
+                        value={selectedCicloId}
+                        filterOption={(input, option) =>
+                            (option?.children?.toString() || "").toLowerCase().includes(input.toLowerCase())
+                        }
+                    >
+                        {ciclos.map(ciclo => (
+                            <Option key={ciclo.id_ciclo} value={ciclo.id_ciclo}>
+                                {ciclo.nombre}
+                            </Option>
+                        ))}
+                    </Select>
+
+                    {selectedCiclo && (
+                        <div>
+                            <div className="row mb-3 g-3">
+                                <div className="col-md-6">
+                                    <h3>{selectedCiclo.nombre}</h3>
+                                    <p>{selectedCiclo.descripcion || 'Sin descripción'}</p>
+                                </div>
+                                <div className="col-md-6">
+                                    <div className="formulario-acciones">
+                                        <button
+                                            className="btn-cancelar"
+                                            onClick={() => setCurrentView("detalleCiclo")}
+                                        >
+                                            Ver Detalles
+                                        </button>
+                                        <button
+                                            className="btn-editar"
+                                            onClick={() => setCurrentView("editCiclo")}
+                                        >
+                                            <i className="bi bi-pencil-square me-1"></i>
+                                            Editar Ciclo
+                                        </button>
+                                        <button
+                                            className="btn-guardar"
+                                            onClick={() => setCurrentView("createCurso")}
+                                        >
+                                            <i className="bi bi-plus-circle me-1"></i>
+                                            Crear Curso
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {loadingCursos ? (
+                        <div>Cargando cursos...</div>
+                    ) : (
+                        <TablaCursos
+                            cursos={cursos}
+                            filteredCursos={filteredCursos}
+                            loading={loadingCursos}
+                            onRefreshData={() => fetchCursos(selectedCicloId)}
+                            onVerDetalle={(id) => {
+                                setCursoSeleccionadoId(id);
+                                setCurrentView("detalleCurso");
+                            }}
+                            onEditar={handleEditClick}
+                        />
+                    )}
+                </>
+            )}
+        </div>
+    );
+
     return (
         <div>
             {contextHolder}
             <h2 className="text-black">Administración de Cursos Bíblicos</h2>
             <hr />
 
-            <div>
-                <div className="d-flex justify-content-between mb-4">
-                    <h4>Seleccione un ciclo</h4>
-                    <button className="btn btn-primary text-white shadow-sm" onClick={toggleFormularioCiclo}>
-                        <i className="bi bi-plus-circle me-1"></i>
-                        Crear Ciclo
-                    </button>
-                </div>
+            {currentView === "main" && renderMainView()}
 
-                {loading ? (
-                    <div className="text-center my-4">Cargando ciclos...</div>
-                ) : ciclos.length === 0 ? (
-                    <div className="alert alert-info">
-                        No hay ciclos disponibles. Crea un nuevo ciclo para comenzar.
-                    </div>
-                ) : (
-                    <>
-                        <Select
-                            showSearch
-                            style={{ width: '100%', marginBottom: '20px' }}
-                            placeholder="Buscar ciclo..."
-                            optionFilterProp="children"
-                            onChange={handleCicloSelect}
-                            value={selectedCicloId}
-                            filterOption={(input, option) =>
-                                (option?.children?.toString() || "").toLowerCase().includes(input.toLowerCase())
-                            }
-                        >
-                            {ciclos.map(ciclo => (
-                                <Option key={ciclo.id_ciclo} value={ciclo.id_ciclo}>
-                                    {ciclo.nombre}
-                                </Option>
-                            ))}
-                        </Select>
+            {currentView === "createCiclo" && (
+                <FormularioCrearCiclo
+                    visible={true}
+                    onClose={handleClose}
+                    onSuccess={handleCreateCicloSuccess}
+                />
+            )}
 
-                        {selectedCiclo && (
-                            <div>
-                                <h3>{selectedCiclo.nombre}</h3>
-                                <p>{selectedCiclo.descripcion || 'Sin descripción'}</p>
-                                <button className="btn btn-outline-primary mb-3" onClick={() => setMostrarDetalleCiclo(true)}>
-                                    Ver Detalles del Ciclo
-                                </button>
-                                <button className="btn btn-success ms-2 mb-3" onClick={toggleFormularioCurso}>
-                                    <i className="bi bi-plus-circle me-1"></i>
-                                    Crear Curso
-                                </button>
-                            </div>
-                        )}
+            {currentView === "detalleCiclo" && selectedCiclo && (
+                <DetalleCiclo
+                    ciclo={selectedCiclo}
+                    onClose={handleClose}
+                    onEdit={() => setCurrentView("editCiclo")}
+                />
+            )}
 
-                        {loadingCursos ? (
-                            <div>Cargando cursos...</div>
-                        ) : (
-                            <TablaCursos
-                                cursos={cursos}
-                                filteredCursos={filteredCursos}
-                                loading={loadingCursos}
-                                onRefreshData={() => fetchCursos(selectedCicloId)}
-                                onVerDetalle={(id) => setCursoSeleccionadoId(id)}
-                                onEditar={handleEditClick}
-                            />
-                        )}
-                    </>
-                )}
-            </div>
-
-            {/* Formulario para crear curso */}
-            {mostrarFormularioCurso && (
+            {currentView === "createCurso" && (
                 <FormularioCrearCurso
-                    visible={mostrarFormularioCurso}
-                    onCancel={toggleFormularioCurso}
+                    visible={true}
+                    onClose={handleClose}
                     onSuccess={handleSuccessCurso}
                     idCiclo={selectedCicloId}
                 />
             )}
-
-            {/* Formulario para editar curso */}
-            {showEditForm && selectedCurso && (
+            {currentView === "editCurso" && selectedCurso && (
                 <FormularioEditarCurso
-                    visible={showEditForm}
-                    onCancel={handleCloseForm}
+                    visible={true}
+                    onClose={handleClose}
                     curso={selectedCurso}
                     onSuccess={handleUpdateSuccess}
                 />
             )}
 
-            {/* Detalle del curso seleccionado */}
-            {cursoSeleccionadoId && (
+            {currentView === "detalleCurso" && cursoSeleccionadoId && (
                 <DetalleCurso
                     cursoId={cursoSeleccionadoId}
-                    onClose={() => setCursoSeleccionadoId(null)}
+                    onClose={handleClose}
                 />
             )}
 
-            {/* Formulario para crear ciclo */}
-            {mostrarFormularioCiclo && (
-                <FormularioCrearCiclo
-                    visible={mostrarFormularioCiclo}
-                    onCancel={() => setMostrarFormularioCiclo(false)}
-                    onSuccess={handleCreateCicloSuccess}
-                />
-            )}
-
-            {/* Formulario para editar ciclo */}
-            {showEditCicloForm && selectedCiclo && (
+            {currentView === "editCiclo" && selectedCiclo && (
                 <FormularioEditarCiclo
                     ciclo={selectedCiclo}
-                    visible={showEditCicloForm}
-                    onCancel={() => setShowEditCicloForm(false)}
+                    visible={true}
+                    onClose={handleClose}
                     onSuccess={handleUpdateCicloSuccess}
-                />
-            )}
-
-            {/* Detalle del ciclo */}
-            {mostrarDetalleCiclo && selectedCiclo && (
-                <DetalleCiclo
-                    ciclo={selectedCiclo}
-                    onClose={() => setMostrarDetalleCiclo(false)}
-                    onEdit={() => {
-                        setShowEditCicloForm(true);
-                        setMostrarDetalleCiclo(false);
-                    }}
                 />
             )}
         </div>

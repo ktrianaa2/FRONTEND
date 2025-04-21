@@ -3,7 +3,7 @@ import API_URL from "../../../Config";
 import { notification } from "antd";
 import '../../Styles/Detalles.css';
 
-function DetalleCurso({ idCurso, onClose }) {
+function DetalleCurso({ cursoId, onClose }) {
     const [curso, setCurso] = useState(null);
     const [loading, setLoading] = useState(true);
     const [api, contextHolder] = notification.useNotification();
@@ -15,7 +15,7 @@ function DetalleCurso({ idCurso, onClose }) {
                 const token = localStorage.getItem('authToken');
                 if (!token) throw new Error("No hay sesión activa");
 
-                const response = await fetch(`${API_URL}/Cursos/${idCurso}`, {
+                const response = await fetch(`${API_URL}/Cursos/ver_curso/${cursoId}/`, {
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -41,10 +41,10 @@ function DetalleCurso({ idCurso, onClose }) {
             }
         };
 
-        if (idCurso) {
+        if (cursoId) {
             fetchCurso();
         }
-    }, [idCurso]);
+    }, [cursoId]);
 
     if (loading) return <div className="text-center my-4">Cargando datos del curso...</div>;
 

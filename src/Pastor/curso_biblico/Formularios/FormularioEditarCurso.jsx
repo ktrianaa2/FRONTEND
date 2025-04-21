@@ -29,7 +29,7 @@ function FormularioEditarCurso({ curso, onClose, onSuccess }) {
                     },
                 });
                 const data = await res.json();
-                setCiclos(data);
+                setCiclos(data.ciclos || []);
             } catch (error) {
                 api.error({
                     message: "Error al cargar ciclos",
@@ -73,8 +73,8 @@ function FormularioEditarCurso({ curso, onClose, onSuccess }) {
                 form.append(key, formData[key]);
             }
 
-            const response = await fetch(`${API_URL}/Cursos/editar_curso/${curso.id_curso}`, {
-                method: "PUT",
+            const response = await fetch(`${API_URL}/Cursos/editar_curso/${curso.id_curso}/`, {
+                method: "POST",
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -278,12 +278,13 @@ function FormularioEditarCurso({ curso, onClose, onSuccess }) {
                         <button
                             type="button"
                             className="btn-cancelar"
-                            onClick={onClose}
+                            onClick={() => {
+                                onClose && onClose();
+                            }}
                             disabled={loading}
                         >
                             Cancelar
                         </button>
-
                         <button
                             type="submit"
                             className="btn-guardar"

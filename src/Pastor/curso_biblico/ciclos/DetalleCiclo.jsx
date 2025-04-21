@@ -3,12 +3,23 @@ import API_URL from "../../../../Config";
 import { notification } from "antd";
 import '../../../Styles/Detalles.css';
 
-function DetalleCiclo({ idCiclo, onClose }) {
+function DetalleCiclo({ ciclo: propCiclo, idCiclo, onClose }) {
     const [ciclo, setCiclo] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!propCiclo);
     const [api, contextHolder] = notification.useNotification();
 
     useEffect(() => {
+        if (propCiclo) {
+            setCiclo(propCiclo);
+            setLoading(false);
+            return;
+        }
+
+        if (!idCiclo) {
+            setLoading(false);
+            return;
+        }
+
         const fetchCiclo = async () => {
             setLoading(true);
             try {
@@ -29,22 +40,21 @@ function DetalleCiclo({ idCiclo, onClose }) {
                 }
 
                 const data = await response.json();
-                setCiclo(data);
+                setCiclo(data.data);
             } catch (error) {
                 api.error({
                     message: "Error al obtener ciclo",
                     description: error.message,
                     duration: 4
                 });
+                setCiclo(null);
             } finally {
                 setLoading(false);
             }
         };
 
-        if (idCiclo) {
-            fetchCiclo();
-        }
-    }, [idCiclo]);
+        fetchCiclo();
+    }, [idCiclo, propCiclo]);
 
     if (loading) return <div className="text-center my-4">Cargando datos del ciclo...</div>;
 

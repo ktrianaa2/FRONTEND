@@ -29,7 +29,7 @@ function FormularioCrearCurso({ onClose, onSuccess, idCiclo }) {
                     },
                 });
                 const data = await res.json();
-                setCiclos(data);
+                setCiclos(data.ciclos || []);
             } catch (error) {
                 api.error({
                     message: "Error al cargar ciclos",
@@ -265,7 +265,16 @@ function FormularioCrearCurso({ onClose, onSuccess, idCiclo }) {
                         <button
                             type="button"
                             className="btn-cancelar"
-                            onClick={onClose}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (typeof onClose === 'function') {
+                                    console.log("Calling onClose function in crear curso");
+                                    onClose();
+                                } else {
+                                    console.warn("onClose is not a function", onClose);
+                                }
+                            }}
                             disabled={loading}
                         >
                             Cancelar
