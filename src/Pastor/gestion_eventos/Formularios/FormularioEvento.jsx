@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { notification, Select } from "antd";
 import API_URL from "../../../../Config";
 import "../../../Styles/Formulario.css";
@@ -7,14 +7,47 @@ function FormularioCrearEvento({ onClose, onSuccess, ministerios }) {
     const [formData, setFormData] = useState({
         nombre: "",
         id_ministerio: "",
+        id_tipo_evento: "", // Nuevo campo
         descripcion: "",
         fecha: "",
         hora: "",
         lugar: ""
     });
 
+    const [tiposEvento, setTiposEvento] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [loadingTipos, setLoadingTipos] = useState(false);
     const [api, contextHolder] = notification.useNotification();
+
+    // Cargar tipos de evento al montar el componente
+    useEffect(() => {
+        const fetchTiposEvento = async () => {
+            try {
+                setLoadingTipos(true);
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`${API_URL}/Eventos/tipos_evento/listar/`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    }
+                });
+
+                if (!response.ok) throw new Error('Error al obtener los tipos de evento');
+                
+                const data = await response.json();
+                setTiposEvento(data.data);
+            } catch (err) {
+                api.error({
+                    message: 'Error',
+                    description: err.message,
+                    duration: 5,
+                });
+            } finally {
+                setLoadingTipos(false);
+            }
+        };
+
+        fetchTiposEvento();
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -42,7 +75,8 @@ function FormularioCrearEvento({ onClose, onSuccess, ministerios }) {
                 throw new Error('No hay sesión activa');
             }
 
-            const required_fields = ['nombre', 'id_ministerio', 'descripcion', 'fecha', 'hora'];
+            // Campos obligatorios (incluyendo id_tipo_evento)
+            const required_fields = ['nombre', 'id_ministerio', 'id_tipo_evento', 'descripcion', 'fecha', 'hora'];
             for (const field of required_fields) {
                 if (!formData[field]) {
                     throw new Error(`El campo ${field.replace('_', ' ')} es obligatorio`);
@@ -75,6 +109,7 @@ function FormularioCrearEvento({ onClose, onSuccess, ministerios }) {
             setFormData({
                 nombre: "",
                 id_ministerio: "",
+                id_tipo_evento: "",
                 descripcion: "",
                 fecha: "",
                 hora: "",
@@ -139,7 +174,6 @@ function FormularioCrearEvento({ onClose, onSuccess, ministerios }) {
                                     Ministerio <span className="text-danger">*</span>
                                 </label>
                                 <div className="formulario-input-group">
-
                                     <span className="formulario-input-group-text">
                                         <i className="bi bi-people-fill"></i>
                                     </span>
@@ -154,6 +188,56 @@ function FormularioCrearEvento({ onClose, onSuccess, ministerios }) {
                                             label: ministerio.nombre
                                         }))}
                                         placeholder="Seleccione un ministerio"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="row mb-3 g-3">
+                        <div className="col-md-6">
+                            <div className="formulario-campo">
+                                <label htmlFor="id_tipo_evento" className="formulario-label">
+                                    Tipo de Evento <span className="text-danger">*</span>
+                                </label>
+                                <div className="formulario-input-group">
+                                    <span className="formulario-input-group-text">
+                                        <i className="bi bi-tag-fill"></i>
+                                    </span>
+                                    <Select
+                                        className="formulario-select"
+                                        id="id_tipo_evento"
+                                        name="id_tipo_evento"
+                                        value={formData.id_tipo_evento || null}
+                                        onChange={(value) => handleSelectChange(value, 'id_tipo_evento')}
+                                        options={tiposEvento.map(tipo => ({
+                                            value: tipo.id_tipo_evento,
+                                            label: tipo.nombre
+                                        }))}
+                                        placeholder="Seleccione un tipo"
+                                        loading={loadingTipos}
+                                        disabled={loadingTipos}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="col-md-6">
+                            <div className="formulario-campo">
+                                <label htmlFor="lugar" className="formulario-label">
+                                    Lugar
+                                </label>
+                                <div className="formulario-input-group">
+                                    <span className="formulario-input-group-text">
+                                        <i className="bi bi-geo-alt-fill"></i>
+                                    </span>
+                                    <input
+                                        type="text"
+                                        id="lugar"
+                                        name="lugar"
+                                        className="formulario-input"
+                                        value={formData.lugar}
+                                        onChange={handleChange}
                                     />
                                 </div>
                             </div>
@@ -226,25 +310,6 @@ function FormularioCrearEvento({ onClose, onSuccess, ministerios }) {
                         </div>
                     </div>
 
-                    <div className="formulario-campo">
-                        <label htmlFor="lugar" className="formulario-label">
-                            Lugar
-                        </label>
-                        <div className="formulario-input-group">
-                            <span className="formulario-input-group-text">
-                                <i className="bi bi-geo-alt-fill"></i>
-                            </span>
-                            <input
-                                type="text"
-                                id="lugar"
-                                name="lugar"
-                                className="formulario-input"
-                                value={formData.lugar}
-                                onChange={handleChange}
-                            />
-                        </div>
-                    </div>
-
                     <div className="formulario-acciones">
                         <button
                             type="button"
@@ -258,7 +323,7 @@ function FormularioCrearEvento({ onClose, onSuccess, ministerios }) {
                         <button
                             type="submit"
                             className="btn-guardar"
-                            disabled={loading}
+                            disabled={loading || loadingTipos}
                         >
                             {loading ? (
                                 <>

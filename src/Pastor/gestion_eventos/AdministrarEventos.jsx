@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { notification } from "antd";
+import { notification, Modal } from "antd";
 import TablaEventos from "./Tabla/TablaEventos";
 import FormularioEvento from "./Formularios/FormularioEvento";
 import FormularioEditarEvento from "./Formularios/FormularioEditarEvento";
 import DetalleEvento from "./DetalleEvento"
 import API_URL from "../../../Config";
-import ModalMotivo from "./ModalMotivo";
+import ModalMotivo from "./Modales/ModalMotivo";
+import AdministrarTiposEvento from "./gestion_tipos_eventos/AdministrarTiposEvento";
+
 function AdministrarEventos() {
   const [search, setSearch] = useState("");
   const [eventos, setEventos] = useState([]);
@@ -16,7 +18,9 @@ function AdministrarEventos() {
   const [showEditForm, setShowEditForm] = useState(false);
   const [selectedEvento, setSelectedEvento] = useState(null);
   const [api, contextHolder] = notification.useNotification();
-  const [soloMisEventos, setSoloMisEventos] = useState(false); // Nuevo estado para el filtro
+  const [soloMisEventos, setSoloMisEventos] = useState(false);
+
+  const [mostrarTiposEvento, setMostrarTiposEvento] = useState(false);
 
   const [modalMotivo, setModalMotivo] = useState({
     visible: false,
@@ -147,9 +151,8 @@ function AdministrarEventos() {
         duration: 3,
       });
 
-      if (fetchEventos) {
-        await fetchEventos();
-      }
+      // Recargar eventos con el filtro actual
+      await fetchEventos(soloMisEventos);
 
       setShowEditForm(false);
       setSelectedEvento(null);
@@ -256,6 +259,17 @@ function AdministrarEventos() {
       <h2 className="text-black">Administración de Eventos</h2>
       <hr />
 
+      {/* Modal para administrar tipos de evento */}
+      <Modal
+        title="Administrar Tipos de Evento"
+        width={800}
+        open={mostrarTiposEvento}
+        onCancel={() => setMostrarTiposEvento(false)}
+        footer={null}
+      >
+        <AdministrarTiposEvento />
+      </Modal>
+
       <ModalMotivo
         open={modalMotivo.visible}  // Cambiado de 'visible' a 'open'
         onCancel={() => setModalMotivo({ visible: false, idEvento: null, accion: '' })}
@@ -274,6 +288,7 @@ function AdministrarEventos() {
           ministerios={ministerios}
           onClose={handleCloseForm}
           onUpdateSuccess={handleUpdateSuccess}
+          soloMisEventos={soloMisEventos}
         />
       ) : mostrarFormulario ? (
         <FormularioEvento
@@ -294,7 +309,6 @@ function AdministrarEventos() {
                 style={{ width: '300px' }}
               />
 
-              {/* Nuevo switch para filtrar */}
               <div className="form-check form-switch">
                 <input
                   className="form-check-input"
@@ -309,17 +323,25 @@ function AdministrarEventos() {
               </div>
             </div>
 
-            <button
-              className="btn btn-success text-white shadow-sm"
-              onClick={toggleFormulario}
-              disabled={loading}
-            >
-              <i
-                className={`bi ${mostrarFormulario ? "bi-x-circle" : "bi-plus-circle"
-                  } me-1`}
-              ></i>
-              {mostrarFormulario ? "Cancelar" : "Nuevo Evento"}
-            </button>
+            <div className="d-flex gap-2">
+              <button
+                className="btn btn-primary text-white shadow-sm"
+                onClick={() => setMostrarTiposEvento(true)}
+                disabled={loading}
+              >
+                <i className="bi bi-tags me-1"></i>
+                Tipos de Evento
+              </button>
+
+              <button
+                className="btn btn-success text-white shadow-sm"
+                onClick={toggleFormulario}
+                disabled={loading}
+              >
+                <i className={`bi ${mostrarFormulario ? "bi-x-circle" : "bi-plus-circle"} me-1`}></i>
+                {mostrarFormulario ? "Cancelar" : "Nuevo Evento"}
+              </button>
+            </div>
           </div>
 
           {loading ? (
