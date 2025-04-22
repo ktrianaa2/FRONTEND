@@ -27,6 +27,7 @@ function TablaEventos({
             <thead className="table-light">
               <tr>
                 <th>Nombre</th>
+                <th>Tipo</th>
                 <th>Descripción</th>
                 <th>Fecha y Hora</th>
                 <th>Lugar</th>
@@ -39,6 +40,15 @@ function TablaEventos({
               {filteredEventos.map((evento) => (
                 <tr key={evento.id_evento}>
                   <td>{evento.nombre}</td>
+                  <td>
+                    {evento.tipo_evento ? (
+                      <span className="badge bg-info text-dark">
+                        {evento.tipo_evento}
+                      </span>
+                    ) : (
+                      <span className="badge bg-secondary">Sin tipo</span>
+                    )}
+                  </td>
                   <td className="text-truncate" style={{ maxWidth: '200px' }} title={evento.descripcion}>
                     {evento.descripcion}
                   </td>
@@ -48,10 +58,10 @@ function TablaEventos({
                   <td>
                     <span className={`badge ${evento.estado === 'Aprobado' ? 'bg-success' :
                       evento.estado === 'Pendiente' ? 'bg-warning text-dark' :
-                      evento.estado === 'Rechazado' ? 'bg-danger' :
-                      evento.estado === 'Cancelado' ? 'bg-secondary' :
-                      evento.estado === 'Pospuesto' ? 'bg-info' :
-                      'bg-primary'}`}>
+                        evento.estado === 'Rechazado' ? 'bg-danger' :
+                          evento.estado === 'Cancelado' ? 'bg-secondary' :
+                            evento.estado === 'Pospuesto' ? 'bg-info' :
+                              'bg-primary'}`}>
                       {evento.estado}
                     </span>
                   </td>
@@ -63,13 +73,17 @@ function TablaEventos({
                       >
                         <i className="bi bi-eye-fill me-1"></i> Ver
                       </button>
-                      <button
-                        className="btn btn-sm btn-warning"
-                        onClick={() => onEditar(evento)}
-                        disabled={evento.estado === 'Aprobado'}
-                      >
-                        <i className="bi bi-pencil-fill me-1"></i> Editar
-                      </button>
+
+                      {/* Botón Editar condicional */}
+                      {soloMisEventos && (
+                        <button
+                          className="btn btn-sm btn-warning"
+                          onClick={() => onEditar(evento)}
+                          disabled={evento.estado === 'Aprobado'}
+                        >
+                          <i className="bi bi-pencil-fill me-1"></i> Editar
+                        </button>
+                      )}
 
                       {soloMisEventos && (
                         <button
