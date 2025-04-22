@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { notification } from "antd";
-import API_URL from "../../../../Config";
-import "../../../Styles/Formulario.css";
+import API_URL from "../../../../../Config";
+import "../../../../Styles/Formulario.css";
 
-function FormularioEditarCurso({ curso, onClose, onSuccess }) {
+function FormularioCrearCurso({ onClose, onSuccess, idCiclo }) {
     const [formData, setFormData] = useState({
         nombre: "",
         descripcion: "",
@@ -11,14 +11,14 @@ function FormularioEditarCurso({ curso, onClose, onSuccess }) {
         fecha_fin: "",
         hora_inicio: "",
         hora_fin: "",
-        id_ciclo: ""
+        id_ciclo: idCiclo,
     });
 
     const [ciclos, setCiclos] = useState([]);
     const [loading, setLoading] = useState(false);
     const [api, contextHolder] = notification.useNotification();
 
-    // Cargar ciclos y datos del curso al montar el componente
+    // Cargar ciclos al montar el componente
     useEffect(() => {
         const fetchCiclos = async () => {
             try {
@@ -39,20 +39,7 @@ function FormularioEditarCurso({ curso, onClose, onSuccess }) {
         };
 
         fetchCiclos();
-
-        // Si hay un curso, cargar sus datos
-        if (curso) {
-            setFormData({
-                nombre: curso.nombre || "",
-                descripcion: curso.descripcion || "",
-                fecha_inicio: curso.fecha_inicio || "",
-                fecha_fin: curso.fecha_fin || "",
-                hora_inicio: curso.hora_inicio || "",
-                hora_fin: curso.hora_fin || "",
-                id_ciclo: curso.id_ciclo?.id_ciclo || ""
-            });
-        }
-    }, [curso]);
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -73,7 +60,7 @@ function FormularioEditarCurso({ curso, onClose, onSuccess }) {
                 form.append(key, formData[key]);
             }
 
-            const response = await fetch(`${API_URL}/Cursos/editar_curso/${curso.id_curso}/`, {
+            const response = await fetch(`${API_URL}/Cursos/crear_curso/`, {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -83,19 +70,19 @@ function FormularioEditarCurso({ curso, onClose, onSuccess }) {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || "Error al actualizar el curso");
+                throw new Error(errorData.error || "Error al crear el curso");
             }
 
             api.success({
-                message: "Curso actualizado",
-                description: "El curso fue actualizado exitosamente",
+                message: "Curso creado",
+                description: "El curso fue creado exitosamente",
             });
 
             onSuccess();
         } catch (error) {
             api.error({
                 message: "Error",
-                description: error.message || "No se pudo actualizar el curso",
+                description: error.message || "No se pudo crear el curso",
             });
         } finally {
             setLoading(false);
@@ -107,7 +94,7 @@ function FormularioEditarCurso({ curso, onClose, onSuccess }) {
             {contextHolder}
             <div className="formulario-header">
                 <h5 className="formulario-titulo">
-                    <i className="bi bi-pencil-square"></i> Editar Curso
+                    <i className="bi bi-calendar-plus-fill"></i> Crear Nuevo Curso
                 </h5>
             </div>
             <div className="formulario-body">
@@ -278,13 +265,21 @@ function FormularioEditarCurso({ curso, onClose, onSuccess }) {
                         <button
                             type="button"
                             className="btn-cancelar"
-                            onClick={() => {
-                                onClose && onClose();
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (typeof onClose === 'function') {
+                                    console.log("Calling onClose function in crear curso");
+                                    onClose();
+                                } else {
+                                    console.warn("onClose is not a function", onClose);
+                                }
                             }}
                             disabled={loading}
                         >
                             Cancelar
                         </button>
+
                         <button
                             type="submit"
                             className="btn-guardar"
@@ -293,10 +288,10 @@ function FormularioEditarCurso({ curso, onClose, onSuccess }) {
                             {loading ? (
                                 <>
                                     <span className="spinner"></span>
-                                    Guardando...
+                                    Creando...
                                 </>
                             ) : (
-                                <>Guardar Cambios</>
+                                <>Crear Curso</>
                             )}
                         </button>
                     </div>
@@ -306,4 +301,4 @@ function FormularioEditarCurso({ curso, onClose, onSuccess }) {
     );
 }
 
-export default FormularioEditarCurso;
+export default FormularioCrearCurso;

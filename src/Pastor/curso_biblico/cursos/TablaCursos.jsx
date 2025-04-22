@@ -7,8 +7,7 @@ function TablaCursos({
   cursos,
   filteredCursos,
   onRefreshData,
-  onVerDetalle,
-  onEditar,
+  onGestionar,
 }) {
   const [api, contextHolder] = notification.useNotification();
 
@@ -52,16 +51,10 @@ function TablaCursos({
                   <td>
                     <div className="btn-acciones">
                       <button
-                        className="btn-ver"
-                        onClick={() => onVerDetalle(curso.id_curso)}
+                        className="btn-guardar"
+                        onClick={() => onGestionar(curso)}
                       >
-                        <i className="bi bi-eye-fill me-1"></i> Ver
-                      </button>
-                      <button
-                        className="btn-editar"
-                        onClick={() => onEditar(curso)}
-                      >
-                        <i className="bi bi-pencil-fill me-1"></i> Editar
+                        <i className="bi bi-tools me-1"></i> Gestionar
                       </button>
                     </div>
                   </td>

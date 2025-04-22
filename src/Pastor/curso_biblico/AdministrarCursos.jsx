@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { notification, Select } from "antd";
-import DetalleCurso from "./DetalleCurso";
-import TablaCursos from "./Tabla/TablaCursos";
-import FormularioCrearCurso from "./Formularios/FormularioCurso";
-import FormularioEditarCurso from "./Formularios/FormularioEditarCurso";
+import DetalleCurso from "./cursos/DetalleCurso";
+import TablaCursos from "./cursos/TablaCursos";
+import FormularioCrearCurso from "./cursos/Formularios/FormularioCurso";
+import FormularioEditarCurso from "./cursos/Formularios/FormularioEditarCurso";
 import FormularioCrearCiclo from "./ciclos/Formularios/FormularioCiclo";
 import FormularioEditarCiclo from "./ciclos/Formularios/FormularioEditarCiclo";
 import DetalleCiclo from "./ciclos/DetalleCiclo";
+import GestionarCurso from "./cursos/GestionarCurso";
 import API_URL from "../../../Config";
 import "../../Styles/Formulario.css"
 
@@ -26,9 +27,16 @@ function AdministrarCursos() {
 
     const [currentView, setCurrentView] = useState("main"); // "main", "createCiclo", "detalleCiclo", "createCurso", "detalleCurso", "editCurso", "editCiclo"
 
-    const handleClose = () => {
-        setCurrentView("main");
+    const handleCloseGestionarCurso = () => {
+        setCurrentView("gestionCurso");
     };
+    
+    const handleCloseMain = () => {
+        setCurrentView("main");
+        setSelectedCurso(null);
+        setCursoSeleccionadoId(null);
+    };
+    
 
     const fetchCiclos = async () => {
         try {
@@ -108,7 +116,7 @@ function AdministrarCursos() {
 
     const handleCreateCicloSuccess = () => {
         fetchCiclos();
-        handleClose();
+        handleCloseMain();
         api.success({
             message: "Éxito",
             description: "Ciclo creado correctamente",
@@ -118,7 +126,7 @@ function AdministrarCursos() {
 
     const handleUpdateCicloSuccess = () => {
         fetchCiclos();
-        handleClose();
+        handleCloseMain();
         api.success({
             message: "Éxito",
             description: "Ciclo actualizado correctamente",
@@ -148,17 +156,12 @@ function AdministrarCursos() {
 
     const handleSuccessCurso = () => {
         fetchCursos(selectedCicloId);
-        handleClose();
+        handleCloseMain();
         api.success({
             message: "Éxito",
             description: "Curso creado correctamente",
             duration: 3,
         });
-    };
-
-    const handleEditClick = (curso) => {
-        setSelectedCurso(curso);
-        setCurrentView("editCurso");
     };
 
     const handleUpdateSuccess = async () => {
@@ -170,7 +173,7 @@ function AdministrarCursos() {
             });
 
             await fetchCursos(selectedCicloId);
-            handleClose();
+            handleCloseMain();
             setSelectedCurso(null);
         } catch (error) {
             api.error({
@@ -267,11 +270,11 @@ function AdministrarCursos() {
                             filteredCursos={filteredCursos}
                             loading={loadingCursos}
                             onRefreshData={() => fetchCursos(selectedCicloId)}
-                            onVerDetalle={(id) => {
-                                setCursoSeleccionadoId(id);
-                                setCurrentView("detalleCurso");
+                            onGestionar={(curso) => {
+                                setSelectedCurso(curso);
+                                setCursoSeleccionadoId(curso.id_curso);
+                                setCurrentView("gestionCurso");
                             }}
-                            onEditar={handleEditClick}
                         />
                     )}
                 </>
@@ -290,7 +293,7 @@ function AdministrarCursos() {
             {currentView === "createCiclo" && (
                 <FormularioCrearCiclo
                     visible={true}
-                    onClose={handleClose}
+                    onClose={handleCloseMain}
                     onSuccess={handleCreateCicloSuccess}
                 />
             )}
@@ -298,7 +301,7 @@ function AdministrarCursos() {
             {currentView === "detalleCiclo" && selectedCiclo && (
                 <DetalleCiclo
                     ciclo={selectedCiclo}
-                    onClose={handleClose}
+                    onClose={handleCloseMain}
                     onEdit={() => setCurrentView("editCiclo")}
                 />
             )}
@@ -306,7 +309,7 @@ function AdministrarCursos() {
             {currentView === "createCurso" && (
                 <FormularioCrearCurso
                     visible={true}
-                    onClose={handleClose}
+                    onClose={handleCloseMain}
                     onSuccess={handleSuccessCurso}
                     idCiclo={selectedCicloId}
                 />
@@ -314,7 +317,7 @@ function AdministrarCursos() {
             {currentView === "editCurso" && selectedCurso && (
                 <FormularioEditarCurso
                     visible={true}
-                    onClose={handleClose}
+                    onClose={handleCloseGestionarCurso}
                     curso={selectedCurso}
                     onSuccess={handleUpdateSuccess}
                 />
@@ -323,7 +326,7 @@ function AdministrarCursos() {
             {currentView === "detalleCurso" && cursoSeleccionadoId && (
                 <DetalleCurso
                     cursoId={cursoSeleccionadoId}
-                    onClose={handleClose}
+                    onClose={handleCloseGestionarCurso}
                 />
             )}
 
@@ -331,10 +334,20 @@ function AdministrarCursos() {
                 <FormularioEditarCiclo
                     ciclo={selectedCiclo}
                     visible={true}
-                    onClose={handleClose}
+                    onClose={handleCloseMain}
                     onSuccess={handleUpdateCicloSuccess}
                 />
             )}
+
+            {currentView === "gestionCurso" && selectedCurso && (
+                <GestionarCurso
+                    curso={selectedCurso}
+                    onClose={handleCloseMain}
+                    onVerDetalle={() => setCurrentView("detalleCurso")}
+                    onEditar={() => setCurrentView("editCurso")}
+                />
+            )}
+
         </div>
     );
 }

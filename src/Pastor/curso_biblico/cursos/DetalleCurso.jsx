@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import API_URL from "../../../Config";
+import API_URL from "../../../../Config";
 import { notification } from "antd";
-import '../../Styles/Detalles.css';
+import '../../../Styles/Detalles.css';
 
 function DetalleCurso({ cursoId, onClose }) {
     const [curso, setCurso] = useState(null);

@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { notification } from 'antd';
 import Login from './Principal/Login';
 import PastorDashboard from './Pastor/PastorDashboard';
 import LiderDashboard from './Lider/LiderDashboard';
@@ -33,29 +34,33 @@ const HistoryBlocker = () => {
 };
 
 function App() {
+  const [api, contextHolder] = notification.useNotification();
   return (
-    <Router>
-      <HistoryBlocker />
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route
-          path="/pastor/*"
-          element={
-            <ProtectedRoute requiredRole={1}>
-              <PastorDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/lider"
-          element={
-            <ProtectedRoute requiredRole={2}>
-              <LiderDashboard />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </Router>
+    <>
+      {contextHolder}
+      <Router>
+        <HistoryBlocker />
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route
+            path="/pastor/*"
+            element={
+              <ProtectedRoute requiredRole={1}>
+                <PastorDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/lider"
+            element={
+              <ProtectedRoute requiredRole={2}>
+                <LiderDashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </>
   );
 }
 
