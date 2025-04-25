@@ -3,6 +3,9 @@ import { notification } from "antd";
 import API_URL from "../../../../Config";
 import TablaParticipantes from "../participantes/TablaParticipantes";
 import GestionarParticipantes from "../participantes/GestionarParticipantes";
+import DetalleParticipante from "../participantes/DetalleParticipante";
+import GestionarTareas from "../tareas/GestionarTareas";
+import ParticipanteCalificaciones from "../participantes/ParticipantesCalificaciones";
 
 function GestionarCurso({ curso, onClose, onVerDetalle, onEditar }) {
     const [participantes, setParticipantes] = useState([]);
@@ -11,6 +14,10 @@ function GestionarCurso({ curso, onClose, onVerDetalle, onEditar }) {
     const [loading, setLoading] = useState(false);
     const [api, contextHolder] = notification.useNotification();
     const [showGestionarParticipantes, setShowGestionarParticipantes] = useState(false);
+    const [showGestionarTareas, setShowGestionarTareas] = useState(false);
+    const [selectedParticipante, setSelectedParticipante] = useState(null);
+    const [showDetalleParticipante, setShowDetalleParticipante] = useState(false);
+    const [showParticipanteCalificaciones, setShowParticipanteCalificaciones] = useState(false);
 
     const fetchParticipantes = async () => {
         try {
@@ -24,7 +31,7 @@ function GestionarCurso({ curso, onClose, onVerDetalle, onEditar }) {
                 },
             });
 
-            const data = await response.json(); // Esto puede lanzar un error si no es JSON válido
+            const data = await response.json();
 
             if (!response.ok) {
                 throw new Error(data.error || "Error al obtener participantes");
@@ -52,6 +59,10 @@ function GestionarCurso({ curso, onClose, onVerDetalle, onEditar }) {
         setShowGestionarParticipantes(true);
     };
 
+    const handleGestionarTareas = () => {
+        setShowGestionarTareas(true);
+    };
+
     const handleParticipantesSaved = () => {
         setShowGestionarParticipantes(false);
         fetchParticipantes().then(() => {
@@ -64,12 +75,50 @@ function GestionarCurso({ curso, onClose, onVerDetalle, onEditar }) {
         });
     };
 
+    const handleVerDetalles = (participante) => {
+        setSelectedParticipante(participante);
+        setShowDetalleParticipante(true);
+    };
+
+    const handleVerCalificaciones = (participante) => {
+        setSelectedParticipante(participante);
+        setShowParticipanteCalificaciones(true);
+    };
+
     if (showGestionarParticipantes) {
         return (
             <GestionarParticipantes
                 curso={curso}
                 onClose={() => setShowGestionarParticipantes(false)}
                 onSave={handleParticipantesSaved}
+            />
+        );
+    }
+
+    if (showGestionarTareas) {
+        return (
+            <GestionarTareas
+                curso={curso}
+                onClose={() => setShowGestionarTareas(false)}
+            />
+        );
+    }
+
+    if (showDetalleParticipante) {
+        return (
+            <DetalleParticipante
+                participante={selectedParticipante}
+                onClose={() => setShowDetalleParticipante(false)}
+            />
+        );
+    }
+
+    if (showParticipanteCalificaciones) {
+        return (
+            <ParticipanteCalificaciones
+                participante={selectedParticipante}
+                curso={curso}
+                onClose={() => setShowParticipanteCalificaciones(false)}
             />
         );
     }
@@ -89,15 +138,6 @@ function GestionarCurso({ curso, onClose, onVerDetalle, onEditar }) {
             );
             setFilteredParticipantes(filtered);
         }
-    };
-
-    const handleGestionarParticipante = (participante) => {
-        console.log("Gestionar participante:", participante);
-        api.info({
-            message: "Gestión de participante",
-            description: `Gestión para ${participante.nombre} ${participante.apellido}`,
-            duration: 3,
-        });
     };
 
     return (
@@ -131,11 +171,15 @@ function GestionarCurso({ curso, onClose, onVerDetalle, onEditar }) {
                             value={search}
                             onChange={handleSearch}
                         />
-                        <i className="bi bi-search search-icon"></i>
                     </div>
-                    <button className="btn-guardar" onClick={handleAgregarParticipante}>
-                        <i className="bi bi-plus-circle me-1"></i> Gestionar Participante
-                    </button>
+                    <div className="d-flex gap-2">
+                        <button className="btn-guardar" onClick={handleAgregarParticipante}>
+                            <i className="bi bi-plus-circle me-1"></i> Gestionar Participantes
+                        </button>
+                        <button className="btn-guardar" onClick={handleGestionarTareas}>
+                            <i className="bi bi-journal-check me-1"></i> Gestionar Tareas
+                        </button>
+                    </div>
                 </div>
 
                 {loading ? (
@@ -145,7 +189,8 @@ function GestionarCurso({ curso, onClose, onVerDetalle, onEditar }) {
                         participantes={participantes}
                         filteredParticipantes={filteredParticipantes}
                         onRefreshData={fetchParticipantes}
-                        onGestionar={handleGestionarParticipante}
+                        onVerDetalles={handleVerDetalles}
+                        onVerCalificaciones={handleVerCalificaciones}
                     />
                 )}
             </div>

@@ -6,7 +6,8 @@ function TablaParticipantes({
   participantes,
   filteredParticipantes,
   onRefreshData,
-  onGestionar,
+  onVerDetalles,
+  onVerCalificaciones,
 }) {
   const [api, contextHolder] = notification.useNotification();
 
@@ -36,16 +37,15 @@ function TablaParticipantes({
                     <div className="btn-acciones">
                       <button
                         className="btn-ver"
-                        onClick={() => onGestionar(participante)}
+                        onClick={() => onVerDetalles(participante)}
                       >
                         <i className="bi bi-person-lines-fill me-1"></i> Ver Detalles
                       </button>
-
                       <button
                         className="btn-guardar"
-                        onClick={() => onGestionar(participante)}
+                        onClick={() => onVerCalificaciones(participante)}
                       >
-                        <i className="bi bi-person-lines-fill me-1"></i> Calificaciones
+                        <i className="bi bi-journal-check me-1"></i> Calificaciones
                       </button>
                     </div>
                   </td>
