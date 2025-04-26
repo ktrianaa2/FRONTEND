@@ -6,3 +6,71 @@
     transform: scale(1.05); 
     box-shadow: 0 4px 8px rgba(171, 219, 227, 0.5), 0 6px 20px rgba(171, 219, 227, 0.3); /* Sombra celeste */
 }
+
+/* Estilo para las tarjetas de ministerios */
+.ministerio-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.ministerio-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para el texto truncado con máxima compatibilidad */
+.text-truncate-3 {
+    /* Versión estándar (aún no ampliamente soportada) */
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    
+    /* Versiones con prefijos */
+    -webkit-line-clamp: 3;
+    -moz-line-clamp: 3;
+    -ms-line-clamp: 3;
+    line-clamp: 3;
+    
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -ms-box-orient: vertical;
+    box-orient: vertical;
+    
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Versión alternativa para navegadores modernos */
+@supports (line-clamp: 3) {
+    .text-truncate-3 {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+        box-orient: vertical;
+        overflow: hidden;
+    }
+}
+
+/* Contenedor de imagen consistente */
+.img-container {
+    height: 150px;
+    overflow: hidden;
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Placeholder para imágenes faltantes */
+.img-placeholder {
+    color: #6c757d;
+    font-size: 0.875rem;
+    text-align: center;
+    width: 100%;
+}
