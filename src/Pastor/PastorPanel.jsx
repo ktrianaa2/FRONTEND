@@ -87,7 +87,7 @@ function PastorPanel({ onNavigate }) {
                 </Col>
 
                 <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
-                    <Card className="hover-relief shadow-sm" style={{ cursor: 'pointer' }} onClick={() => onNavigate("eventos")}>
+                    <Card className="hover-relief shadow-sm" style={{ cursor: 'pointer' }} onClick={() => onNavigate("devocional")}>
                         <Card.Img
                             variant="top"
                             src="/devocional.png"
