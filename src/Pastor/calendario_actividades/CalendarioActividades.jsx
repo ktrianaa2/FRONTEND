@@ -4,7 +4,7 @@ import ControlesCalendario from "./ControlesCalendario";
 import VistaCalendario from "./VistaCalendario";
 import DetalleEvento from "../gestion_eventos/DetalleEvento";
 
-const CalendarioEventosIglesia = () => {
+const CalendarioActividades = () => {
     const [view, setView] = useState("month");
     const [date, setDate] = useState(new Date());
     const [idUsuario, setIdUsuario] = useState(null);
@@ -164,4 +164,4 @@ const CalendarioEventosIglesia = () => {
     );
 };
 
-export default CalendarioEventosIglesia;
+export default CalendarioActividades;

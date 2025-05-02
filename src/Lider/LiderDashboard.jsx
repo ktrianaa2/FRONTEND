@@ -5,6 +5,9 @@ import LiderMenu from './LiderMenu';
 import LiderNav from './LiderNav';
 import LiderNotificationes from './LiderNotificationes';
 import LiderPanel from './LiderPanel';
+import AdministrarMisMinisterios from '../Pastor/administrar_ministerios/AdministrarMisMinisterios';
+import CalendarioActividades from '../Pastor/calendario_actividades/CalendarioActividades';
+import AdministrarReportes from "../Reportes/ReporteInicio";
 
 const LiderDashboard = () => {
   const navigate = useNavigate();
@@ -22,7 +25,7 @@ const LiderDashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (!userData || userData.rol !== 1) {
+    if (!userData || userData.rol !== 2) {
       navigate('/', { replace: true });
     }
   }, [navigate, userData]);
@@ -55,6 +58,9 @@ const LiderDashboard = () => {
   const handleNavigate = (view) => {
     const viewPathMap = {
       "panel": "/lider",
+      "mis_ministerios": "/lider/citi_mis_ministerios",
+      "calendario": "/lider/citi_calendario",
+      "reportes": "/lider/citi_reportes"
     };
 
     navigate(viewPathMap[view] || "/lider");
@@ -67,8 +73,10 @@ const LiderDashboard = () => {
         <div className="mx-2 pt-5 mt-4">
           <Routes>
             <Route index element={<LiderPanel onNavigate={handleNavigate} />} />
+            <Route path="citi_mis_ministerios" element={<AdministrarMisMinisterios />} />
+            <Route path="citi_calendario" element={<CalendarioActividades />} />
+            <Route path="citi_reportes" element={<AdministrarReportes />} />
           </Routes>
-
         </div>
         <LiderNotificationes />
         <LiderMenu onNavigate={handleNavigate} Usuario={usuario} onLogout={handleLogout} />

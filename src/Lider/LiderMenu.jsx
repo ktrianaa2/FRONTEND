@@ -29,6 +29,22 @@ function LiderMenu({ onNavigate, Usuario, onLogout }) {
               Inicio
             </button>
           </li>
+          <li className="nav-item">
+            <button
+              className="nav-link btn"
+              onClick={() => onNavigate("mis_ministerios")}
+            >
+              Administrar Ministerios
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className="nav-link btn"
+              onClick={() => onNavigate("calendario")}
+            >
+              Calendario de Actividades
+            </button>
+          </li>
           <li className="nav-item dropdown">
             <button
               className="nav-link dropdown-toggle"
