@@ -51,7 +51,7 @@ function App() {
             }
           />
           <Route
-            path="/lider"
+            path="/lider/*"
             element={
               <ProtectedRoute requiredRole={2}>
                 <LiderDashboard />
