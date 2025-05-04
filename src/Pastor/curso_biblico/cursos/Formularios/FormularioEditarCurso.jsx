@@ -49,7 +49,7 @@ function FormularioEditarCurso({ curso, onClose, onSuccess }) {
                 fecha_fin: curso.fecha_fin || "",
                 hora_inicio: curso.hora_inicio || "",
                 hora_fin: curso.hora_fin || "",
-                id_ciclo: curso.id_ciclo?.id_ciclo || ""
+                id_ciclo: curso.id_ciclo || ""
             });
         }
     }, [curso]);

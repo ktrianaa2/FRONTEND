@@ -8,6 +8,7 @@ function TablaTareas({
     onRefreshData,
     onVerDetalles,
     onEditarTarea,
+    onCalificarTarea,
 }) {
     const [api, contextHolder] = notification.useNotification();
 
@@ -23,6 +24,7 @@ function TablaTareas({
                                 <th>Descripcion</th>
                                 <th>Criterio</th>
                                 <th>Fecha de Entrega</th>
+                                <th>% Calificado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -33,6 +35,7 @@ function TablaTareas({
                                     <td>{tarea.descripcion}</td>
                                     <td>{tarea.criterio || "No especificado"}</td>
                                     <td>{tarea.fecha_entrega}</td>
+                                    <td>0</td>
                                     <td>
                                         <div className="btn-acciones">
                                             <button
@@ -46,6 +49,12 @@ function TablaTareas({
                                                 onClick={() => onEditarTarea(tarea)}
                                             >
                                                 <i className="bi bi-pencil-square me-1"></i> Editar
+                                            </button>
+                                            <button
+                                                className="btn-guardar"
+                                                onClick={() => onCalificarTarea(tarea)}
+                                            >
+                                                <i className="bi bi-pencil-square me-1"></i> Calificar
                                             </button>
                                         </div>
                                     </td>

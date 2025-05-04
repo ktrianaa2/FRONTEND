@@ -18,7 +18,6 @@ function FormularioCrearCurso({ onClose, onSuccess, idCiclo }) {
     const [loading, setLoading] = useState(false);
     const [api, contextHolder] = notification.useNotification();
 
-    // Cargar ciclos al montar el componente
     useEffect(() => {
         const fetchCiclos = async () => {
             try {
@@ -52,33 +51,47 @@ function FormularioCrearCurso({ onClose, onSuccess, idCiclo }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        try {
-            const token = localStorage.getItem("authToken");
-            const form = new FormData();
 
-            for (const key in formData) {
-                form.append(key, formData[key]);
+        try {
+            // Validaciones básicas en el frontend
+            if (!formData.nombre || !formData.descripcion || !formData.fecha_inicio ||
+                !formData.fecha_fin || !formData.hora_inicio || !formData.hora_fin) {
+                throw new Error("Todos los campos obligatorios deben estar completos");
             }
 
+            if (new Date(formData.fecha_inicio) > new Date(formData.fecha_fin)) {
+                throw new Error("La fecha de inicio no puede ser posterior a la fecha fin");
+            }
+
+            if (formData.hora_inicio >= formData.hora_fin) {
+                throw new Error("La hora de inicio debe ser anterior a la hora fin");
+            }
+
+            const token = localStorage.getItem("authToken");
+
+            // Enviar como JSON en lugar de FormData
             const response = await fetch(`${API_URL}/Cursos/crear_curso/`, {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
                 },
-                body: form,
+                body: JSON.stringify(formData),
             });
 
+            const responseData = await response.json();
+
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "Error al crear el curso");
+                throw new Error(responseData.error || "Error al crear el curso");
             }
 
             api.success({
-                message: "Curso creado",
-                description: "El curso fue creado exitosamente",
+                message: "Curso creado exitosamente",
+                description: `El curso "${responseData.curso.nombre}" se creó con ${responseData.total_rubricas} criterios de evaluación.`,
             });
 
-            onSuccess();
+            if (onSuccess) onSuccess();
+
         } catch (error) {
             api.error({
                 message: "Error",
@@ -265,16 +278,7 @@ function FormularioCrearCurso({ onClose, onSuccess, idCiclo }) {
                         <button
                             type="button"
                             className="btn-cancelar"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                if (typeof onClose === 'function') {
-                                    console.log("Calling onClose function in crear curso");
-                                    onClose();
-                                } else {
-                                    console.warn("onClose is not a function", onClose);
-                                }
-                            }}
+                            onClick={onClose}
                             disabled={loading}
                         >
                             Cancelar

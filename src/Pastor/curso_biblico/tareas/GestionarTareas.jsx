@@ -4,20 +4,22 @@ import TablaTareas from "./TablaTareas";
 import FormularioCrearTarea from "./Formularios/FormularioTarea";
 import FormularioEditarTarea from "./Formularios/FormularioEditarTarea";
 import DetalleTarea from "./DetalleTarea";
+import CalificarTarea from "./CalificarTarea";
 import API_URL from "../../../../Config";
 
 function GestionarTareas({ curso, onClose }) {
     const [tareas, setTareas] = useState([]);
     const [filteredTareas, setFilteredTareas] = useState([]);
+    const [criterios, setCriterios] = useState([]);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(false);
     const [api, contextHolder] = notification.useNotification();
-    const [mostrarFormularioAgregar, setMostrarFormularioAgregar] = useState(false);
     const [tareaEditar, setTareaEditar] = useState(null);
-    const [modo, setModo] = useState("lista"); // 'lista', 'crear', 'editar', 'detalles'
+    const [modo, setModo] = useState("lista"); // 'lista', 'crear', 'editar', 'detalles', 'calificar'
 
     useEffect(() => {
         fetchTareas();
+        fetchCriterios();
     }, [curso]);
 
     const fetchTareas = async () => {
@@ -33,8 +35,8 @@ function GestionarTareas({ curso, onClose }) {
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || "Error al cargar tareas");
 
-            setTareas(data);
-            setFilteredTareas(data);
+            setTareas(data.tareas);
+            setFilteredTareas(data.tareas);
         } catch (error) {
             api.error({
                 message: "Error",
@@ -42,6 +44,27 @@ function GestionarTareas({ curso, onClose }) {
             });
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchCriterios = async () => {
+        try {
+            const token = localStorage.getItem("authToken");
+            const response = await fetch(`${API_URL}/Cursos/listar_criterios_curso/${curso.id_curso}/`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "Error al cargar criterios");
+
+            setCriterios(data || []);
+        } catch (error) {
+            api.error({
+                message: "Error",
+                description: error.message || "No se pudieron cargar los criterios"
+            });
         }
     };
 
@@ -73,6 +96,11 @@ function GestionarTareas({ curso, onClose }) {
     const handleEditarTarea = (tarea) => {
         setTareaEditar(tarea);
         setModo("editar");
+    };
+
+    const handleCalificarTarea = (tarea) => {
+        setTareaEditar(tarea);
+        setModo("calificar");
     };
 
     const volverALista = () => {
@@ -116,6 +144,7 @@ function GestionarTareas({ curso, onClose }) {
                             onRefreshData={fetchTareas}
                             onVerDetalles={handleVerDetalles}
                             onEditarTarea={handleEditarTarea}
+                            onCalificarTarea={handleCalificarTarea}
                         />
                     )}
                 </>
@@ -123,7 +152,8 @@ function GestionarTareas({ curso, onClose }) {
 
             {modo === "crear" && (
                 <FormularioCrearTarea
-                    curso={curso}
+                    idCurso={curso.id_curso}
+                    criterios={criterios}
                     onClose={volverALista}
                     onSuccess={() => {
                         fetchTareas();
@@ -143,6 +173,19 @@ function GestionarTareas({ curso, onClose }) {
             {modo === "editar" && tareaEditar && (
                 <FormularioEditarTarea
                     tarea={tareaEditar}
+                    criterios={criterios}
+                    onClose={volverALista}
+                    onSuccess={() => {
+                        fetchTareas();
+                        volverALista();
+                    }}
+                />
+            )}
+
+            {modo === "calificar" && tareaEditar && (
+                <CalificarTarea
+                    tarea={tareaEditar}
+                    idCurso={curso.id_curso}
                     onClose={volverALista}
                     onSuccess={() => {
                         fetchTareas();

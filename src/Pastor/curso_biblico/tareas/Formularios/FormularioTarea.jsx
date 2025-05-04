@@ -3,12 +3,12 @@ import { notification } from "antd";
 import API_URL from "../../../../../Config";
 import "../../../../Styles/Formulario.css";
 
-function FormularioCrearTarea({ onClose, onSuccess, idCurso }) {
+function FormularioCrearTarea({ onClose, onSuccess, idCurso, criterios }) {
     const [formData, setFormData] = useState({
         titulo: "",
         descripcion: "",
         fecha_entrega: "",
-        tipo: "Tarea",
+        id_criterio: "",
         id_curso: idCurso,
     });
 
@@ -26,33 +26,38 @@ function FormularioCrearTarea({ onClose, onSuccess, idCurso }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        try {
-            const token = localStorage.getItem("authToken");
-            const form = new FormData();
 
-            for (const key in formData) {
-                form.append(key, formData[key]);
+        try {
+            // Validaciones básicas
+            if (!formData.titulo || !formData.fecha_entrega || !formData.id_criterio) {
+                throw new Error("Todos los campos obligatorios deben estar completos");
             }
 
+            const token = localStorage.getItem("authToken");
+
+            // Enviar como JSON
             const response = await fetch(`${API_URL}/Cursos/crear_tarea/`, {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
                 },
-                body: form,
+                body: JSON.stringify(formData),
             });
 
+            const responseData = await response.json();
+
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "Error al crear la tarea");
+                throw new Error(responseData.error || "Error al crear la tarea");
             }
 
             api.success({
-                message: "Tarea creada",
-                description: "La tarea fue creada exitosamente",
+                message: "Tarea creada exitosamente",
+                description: `La tarea "${responseData.titulo}" ha sido creada.`,
             });
 
-            onSuccess();
+            if (onSuccess) onSuccess();
+
         } catch (error) {
             api.error({
                 message: "Error",
@@ -141,25 +146,27 @@ function FormularioCrearTarea({ onClose, onSuccess, idCurso }) {
 
                         <div className="col-md-6">
                             <div className="formulario-campo">
-                                <label htmlFor="tipo" className="formulario-label">
-                                    Tipo de Tarea <span className="text-danger">*</span>
+                                <label htmlFor="id_criterio" className="formulario-label">
+                                    Criterio de Evaluación <span className="text-danger">*</span>
                                 </label>
                                 <div className="formulario-input-group">
                                     <span className="formulario-input-group-text">
-                                        <i className="bi bi-tags"></i>
+                                        <i className="bi bi-list-check"></i>
                                     </span>
                                     <select
-                                        id="tipo"
-                                        name="tipo"
+                                        id="id_criterio"
+                                        name="id_criterio"
                                         className="formulario-input"
-                                        value={formData.tipo}
+                                        value={formData.id_criterio}
                                         onChange={handleChange}
                                         required
                                     >
-                                        <option value="Tarea">Tarea</option>
-                                        <option value="Examen">Examen</option>
-                                        <option value="Actuación">Actuación</option>
-                                        <option value="Otro">Otro</option>
+                                        <option value="">Seleccione un criterio</option>
+                                        {criterios.map((criterio) => (
+                                            <option key={criterio.id_rubrica} value={criterio.id_rubrica}>
+                                                {criterio.nombre_criterio} ({criterio.porcentaje}%)
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                             </div>
@@ -170,10 +177,7 @@ function FormularioCrearTarea({ onClose, onSuccess, idCurso }) {
                         <button
                             type="button"
                             className="btn-cancelar"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                if (typeof onClose === "function") onClose();
-                            }}
+                            onClick={onClose}
                             disabled={loading}
                         >
                             Cancelar
