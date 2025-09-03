@@ -5,6 +5,7 @@ import FormularioCrearTarea from "./Formularios/FormularioTarea";
 import FormularioEditarTarea from "./Formularios/FormularioEditarTarea";
 import DetalleTarea from "./DetalleTarea";
 import CalificarTarea from "./CalificarTarea";
+import FormularioCriterio from "./Formularios/FormularioCriterio";
 import API_URL from "../../../../Config";
 
 function GestionarTareas({ curso, onClose }) {
@@ -103,6 +104,10 @@ function GestionarTareas({ curso, onClose }) {
         setModo("calificar");
     };
 
+    const handleVerCriterios = () => {
+        setModo("criterios");
+    };
+
     const volverALista = () => {
         setModo("lista");
         setMostrarFormularioAgregar(false);
@@ -130,6 +135,10 @@ function GestionarTareas({ curso, onClose }) {
                             onChange={handleSearch}
                             style={{ maxWidth: 300 }}
                         />
+                        <Button className="btn-cancelar" onClick={handleVerCriterios}>
+                            Criterios
+                        </Button>
+
                         <Button type="primary" onClick={handleAgregarTarea}>
                             <i className="bi bi-plus-circle me-1"></i> Añadir Tarea
                         </Button>
@@ -145,6 +154,7 @@ function GestionarTareas({ curso, onClose }) {
                             onVerDetalles={handleVerDetalles}
                             onEditarTarea={handleEditarTarea}
                             onCalificarTarea={handleCalificarTarea}
+                            idCurso={curso.id_curso}
                         />
                     )}
                 </>
@@ -177,6 +187,18 @@ function GestionarTareas({ curso, onClose }) {
                     onClose={volverALista}
                     onSuccess={() => {
                         fetchTareas();
+                        volverALista();
+                    }}
+                />
+            )}
+
+            {modo === "criterios" && (
+                <FormularioCriterio
+                    Curso={curso}
+                    criterios={criterios}
+                    onClose={volverALista}
+                    onSuccess={() => {
+                        fetchCriterios();
                         volverALista();
                     }}
                 />

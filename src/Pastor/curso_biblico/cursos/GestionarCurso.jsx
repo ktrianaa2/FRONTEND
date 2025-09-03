@@ -5,7 +5,7 @@ import TablaParticipantes from "../participantes/TablaParticipantes";
 import GestionarParticipantes from "../participantes/GestionarParticipantes";
 import DetalleParticipante from "../participantes/DetalleParticipante";
 import GestionarTareas from "../tareas/GestionarTareas";
-import ParticipanteCalificaciones from "../participantes/ParticipantesCalificaciones";
+import ParticipanteCalificaciones from "../participantes/DetalleCalificacionesParticipante";
 
 function GestionarCurso({ curso, onClose, onVerDetalle, onEditar }) {
     const [participantes, setParticipantes] = useState([]);

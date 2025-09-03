@@ -11,6 +11,25 @@ function TablaParticipantes({
 }) {
   const [api, contextHolder] = notification.useNotification();
 
+  const formatearCalificacion = (calificacion) => {
+    console.log("Calificación recibida:", calificacion);
+    if (calificacion === null || calificacion === undefined) {
+      return "Sin calificar";
+    }
+    return parseFloat(calificacion).toFixed(2);
+  };
+
+  const getColorCalificacion = (calificacion) => {
+    if (calificacion === null || calificacion === undefined) {
+      return "#6c757d"; // Gris para sin calificar
+    }
+
+    const nota = parseFloat(calificacion);
+    if (nota >= 8) return "#28a745"; // Verde para excelente
+    if (nota >= 6) return "#ffc107"; // Amarillo para regular
+    return "#dc3545"; // Rojo para bajo
+  };
+
   return (
     <div>
       {contextHolder}
@@ -21,8 +40,7 @@ function TablaParticipantes({
               <tr>
                 <th>Nombre</th>
                 <th>Apellido</th>
-                <th>Asistencia</th>
-                <th>Calificación</th>
+                <th>Calificación Final</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -31,8 +49,16 @@ function TablaParticipantes({
                 <tr key={participante.id_persona}>
                   <td>{participante.nombre}</td>
                   <td>{participante.apellido}</td>
-                  <td>100%</td>
-                  <td>10.00</td>
+                  <td>
+                    <span
+                      style={{
+                        color: getColorCalificacion(participante.calificacion_final),
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      {formatearCalificacion(participante.calificacion_final)}
+                    </span>
+                  </td>
                   <td>
                     <div className="btn-acciones">
                       <button

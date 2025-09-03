@@ -63,14 +63,20 @@ function CalificarTarea({ tarea, onClose, onSuccess }) {
         try {
             setSaving(true);
             const token = localStorage.getItem("authToken");
+            const calificacionesArray = [];
+            const eliminadasArray = [];
 
-            // Preparar datos para enviar
-            const calificacionesArray = Object.entries(calificaciones)
-                .filter(([_, nota]) => nota !== null && nota !== undefined)
-                .map(([id_persona, nota]) => ({
-                    id_persona: parseInt(id_persona),
-                    nota: parseFloat(nota) || 0
-                }));
+            Object.entries(calificaciones).forEach(([id_persona, nota]) => {
+                const id = parseInt(id_persona);
+                if (nota !== null && nota !== '' && !isNaN(parseFloat(nota))) {
+                    calificacionesArray.push({
+                        id_persona: id,
+                        nota: parseFloat(nota)
+                    });
+                } else {
+                    eliminadasArray.push(id);
+                }
+            });
 
             const response = await fetch(`${API_URL}/Cursos/registrar_calificaciones/`, {
                 method: "POST",
@@ -80,7 +86,8 @@ function CalificarTarea({ tarea, onClose, onSuccess }) {
                 },
                 body: JSON.stringify({
                     id_tarea: tarea.id_tarea,
-                    calificaciones: calificacionesArray
+                    calificaciones: calificacionesArray,
+                    eliminadas: eliminadasArray
                 }),
             });
 
@@ -122,15 +129,25 @@ function CalificarTarea({ tarea, onClose, onSuccess }) {
             dataIndex: 'id_persona',
             key: 'calificacion',
             render: (id_persona) => (
-                <Input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.1"
-                    value={calificaciones[id_persona] || ''}
-                    onChange={(e) => handleCalificacionChange(id_persona, e.target.value)}
-                    style={{ width: '100px' }}
-                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.1"
+                        value={calificaciones[id_persona] !== null && calificaciones[id_persona] !== undefined ? calificaciones[id_persona] : ''}
+                        onChange={(e) => handleCalificacionChange(id_persona, e.target.value)}
+                        style={{ width: '100px' }}
+                    />
+                    <Button
+                        type="text"
+                        danger
+                        onClick={() => handleCalificacionChange(id_persona, null)}
+                        title="Borrar calificación"
+                    >
+                        ❌
+                    </Button>
+                </div>
             ),
         },
     ];
@@ -160,7 +177,7 @@ function CalificarTarea({ tarea, onClose, onSuccess }) {
                     <div className="d-flex justify-content-end mt-3">
                         <Button onClick={onClose} className="btn-cancelar">
                             Volver
-                        </Button> 
+                        </Button>
 
                         ㅤ
                         <Button
